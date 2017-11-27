@@ -5,3 +5,4 @@ pbrain-gogomoku.exe
 CMakeFiles/*
 .idea/*
 cmake_install.cmake
+*.o
