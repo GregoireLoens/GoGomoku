@@ -1,0 +1,7 @@
+*.vcxproj*
+CMakeCache.txt
+pbrain-gogomoku.exe
+*.sln
+CMakeFiles/*
+.idea/*
+cmake_install.cmake
