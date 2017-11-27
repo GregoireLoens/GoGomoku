@@ -1,11 +1,6 @@
-:: Move to sources folder
-cd src/main/go
+set GOPATH_TMP=%GOPATH%
+set GOPATH=%GOPATH%;%cd%
 
-:: Compile all Go sources
-go tool compile main.go
+go build -o pbrain-gogomoku.exe src/gogomoku_main/main.go
 
-:: Link the executable
-go tool link -o ../../../pbrain-gogomoku.exe main.o
-
-:: Return to origin
-cd ../../../
+set GOPATH=%GOPATH_TMP%
