@@ -1,11 +1,9 @@
 package main
 
 import (
-	"fmt"
-	"gogomoku/ai"
+	"gogomoku/com"
 )
 
 func main() {
-	fmt.Print("main")
-	go ai.Start()
+	com.ComManagement()
 }
