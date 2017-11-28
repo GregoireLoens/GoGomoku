@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"../ai"
+	"gogomoku/ai"
 )
 
 func main() {
