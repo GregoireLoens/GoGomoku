@@ -18,17 +18,27 @@ type ComFuncTab struct {
 	reg		string
 }
 
-var comFuncTab = [4]ComFuncTab{
+var comFuncTab = [5]ComFuncTab{
 	{ fun: launchAI, reg: "BEGIN" },
 	{ fun: startGame, reg: "START" },
 	{ fun: enemyTurn, reg: "TURN" },
 	{ fun: endGame, reg: "END" },
+	{ fun: restartGame, reg: "RESTART"},
 }
 
 var isActive bool = true
 
 func endGame(_ string) {
 	isActive = false
+}
+
+func restartGame(com string) {
+	for line := range ai.GameBoard {
+		for section := range  ai.GameBoard[line] {
+			ai.GameBoard[line][section] = 0
+		}
+	}
+
 }
 
 func enemyTurn(com string)  {
@@ -51,7 +61,7 @@ func enemyTurn(com string)  {
 	} else {
 		fmt.Println("Index out of range")
 	}
-
+	fmt.Println("OK - everything is good")
 	launchAI(com)
 }
 
