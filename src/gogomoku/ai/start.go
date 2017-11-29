@@ -9,8 +9,8 @@ var GameBoard [][]int
 
 func returnChan(comChan chan<- string, x int, y int) {
 	GameBoard[x][y] = 2
-	sX := strconv.Itoa(x)
-	sY := strconv.Itoa(y)
+	sX := strconv.Itoa(x + 1)
+	sY := strconv.Itoa(y + 1)
 	comChan <- sX + "," + sY
 }
 
