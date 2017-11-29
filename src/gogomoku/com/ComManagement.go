@@ -7,9 +7,21 @@ import (
 	"sync"
 	"fmt"
 	"time"
+	"regexp"
 )
 
-func mainRoutine(msg string) {
+type ComFunc func(string)
+
+type ComFuncTab struct {
+	fun		ComFunc
+	reg		string
+}
+
+var comFuncTab = [1]ComFuncTab{
+	{ fun: launchAI, reg: "BEGIN" },
+}
+
+func launchAI(_ string) {
 	wg := new(sync.WaitGroup)
 	comChan := make(chan string, 1)
 
@@ -17,7 +29,6 @@ func mainRoutine(msg string) {
 	go func() {
 		defer wg.Done()
 
-		comChan <- msg
 		ai.Start(comChan)
 	}()
 	time.Sleep(time.Millisecond * 5)
@@ -26,13 +37,24 @@ func mainRoutine(msg string) {
 
 		select {
 		case res := <- comChan:
-			fmt.Println("On recoit " + res)
+			fmt.Println(res)
 		case <- time.After(time.Second * 3):
 			fmt.Println("Timeout 3")
 		}
 	}()
 	wg.Wait()
 	close(comChan)
+}
+
+func parseCom(com string) {
+	for _, elem := range comFuncTab {
+		match, err := regexp.Match(elem.reg, []byte(com))
+		if err != nil {
+			fmt.Print(err)
+		} else if match {
+			elem.fun(com)
+		}
+	}
 }
 
 func ComManagement() {
@@ -50,7 +72,7 @@ func ComManagement() {
 		go func(msg string) {
 			defer wg.Done()
 
-			mainRoutine(msg)
+			parseCom(msg)
 		}(msg)
 	}
 	wg.Wait()
