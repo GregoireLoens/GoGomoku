@@ -83,8 +83,9 @@ func launchAI(_ string) {
 		select {
 		case res := <- comChan:
 			fmt.Println(res)
-		case <- time.After(time.Second * 3):
-			fmt.Println("Timeout 3")
+		case <- time.After(time.Second * 1):
+			ai.StartRandom(comChan)
+			fmt.Println(<- comChan)
 		}
 	}()
 	wg.Wait()
