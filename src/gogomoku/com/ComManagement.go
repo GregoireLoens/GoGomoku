@@ -18,10 +18,17 @@ type ComFuncTab struct {
 	reg		string
 }
 
-var comFuncTab = [3]ComFuncTab{
+var comFuncTab = [4]ComFuncTab{
 	{ fun: launchAI, reg: "BEGIN" },
 	{ fun: startGame, reg: "START" },
 	{ fun: enemyTurn, reg: "TURN" },
+	{ fun: endGame, reg: "END" },
+}
+
+var isActive bool = true
+
+func endGame(_ string) {
+	isActive = false
 }
 
 func enemyTurn(com string)  {
@@ -107,7 +114,9 @@ func ComManagement() {
 	com := new(ComStruct)
 	com.reader = bufio.NewReader(os.Stdin)
 
-	for true {
+	isActive = true
+
+	for isActive {
 		msg, err := com.reader.ReadString('\n')
 		if err != nil {
 			fmt.Println(err)
