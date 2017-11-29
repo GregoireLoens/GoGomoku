@@ -18,9 +18,34 @@ type ComFuncTab struct {
 	reg		string
 }
 
-var comFuncTab = [2]ComFuncTab{
+var comFuncTab = [3]ComFuncTab{
 	{ fun: launchAI, reg: "BEGIN" },
 	{ fun: startGame, reg: "START" },
+	{ fun: enemyTurn, reg: "TURN" },
+}
+
+func enemyTurn(com string)  {
+	r, err := regexp.Compile("TURN ([0-9]+),([0-9]+)")
+	if err != nil {
+		fmt.Println(err)
+	}
+	s := r.FindStringSubmatch(com)
+	x, err := strconv.Atoi(s[1])
+	if err != nil {
+		fmt.Println(err)
+	}
+	y, err := strconv.Atoi(s[2])
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	if len(ai.GameBoard) >= x && len(ai.GameBoard[x - 1]) >= y {
+		ai.GameBoard[x - 1][y - 1] = 1
+	} else {
+		fmt.Println("Index out of range")
+	}
+
+	launchAI(com)
 }
 
 func startGame(com string) {
