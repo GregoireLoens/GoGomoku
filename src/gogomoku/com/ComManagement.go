@@ -71,6 +71,7 @@ func startGame(com string) {
 			ai.GameBoard[x][y] = 0
 		}
 	}
+	fmt.Println("OK - everything is good")
 }
 
 func launchAI(_ string) {
