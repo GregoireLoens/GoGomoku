@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"time"
 	"regexp"
+	"strconv"
 )
 
 type ComFunc func(string)
@@ -17,8 +18,27 @@ type ComFuncTab struct {
 	reg		string
 }
 
-var comFuncTab = [1]ComFuncTab{
+var comFuncTab = [2]ComFuncTab{
 	{ fun: launchAI, reg: "BEGIN" },
+	{ fun: startGame, reg: "START" },
+}
+
+func startGame(com string) {
+	r, err := regexp.Compile("START ([0-9]+)")
+	if err != nil {
+		fmt.Println(err)
+	}
+	size, err := strconv.Atoi(r.FindStringSubmatch(com)[1])
+	if err != nil {
+		fmt.Println(err)
+	}
+	ai.GameBoard = make([][]int, size)
+	for x := range ai.GameBoard {
+		ai.GameBoard[x] = make([]int, size)
+		for y := range ai.GameBoard[x] {
+			ai.GameBoard[x][y] = 0
+		}
+	}
 }
 
 func launchAI(_ string) {
@@ -58,7 +78,6 @@ func parseCom(com string) {
 }
 
 func ComManagement() {
-	wg := new(sync.WaitGroup)
 	com := new(ComStruct)
 	com.reader = bufio.NewReader(os.Stdin)
 
@@ -68,12 +87,6 @@ func ComManagement() {
 			fmt.Println(err)
 			break
 		}
-		wg.Add(1)
-		go func(msg string) {
-			defer wg.Done()
-
-			parseCom(msg)
-		}(msg)
+		parseCom(msg)
 	}
-	wg.Wait()
 }
