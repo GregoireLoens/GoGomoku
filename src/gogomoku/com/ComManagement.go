@@ -18,15 +18,20 @@ type ComFuncTab struct {
 	reg		string
 }
 
-var comFuncTab = [5]ComFuncTab{
+var comFuncTab = [6]ComFuncTab{
 	{ fun: launchAI, reg: "BEGIN" },
 	{ fun: startGame, reg: "START" },
 	{ fun: enemyTurn, reg: "TURN" },
 	{ fun: endGame, reg: "END" },
 	{ fun: restartGame, reg: "RESTART"},
+	{fun: aboutAI, reg: "ABOUT"},
 }
 
 var isActive bool = true
+
+func aboutAI(com string) {
+	fmt.Println("name=GoGomoku, version=1.0, author=SaltTeam, country=France")
+}
 
 func endGame(_ string) {
 	isActive = false
