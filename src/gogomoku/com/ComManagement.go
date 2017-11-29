@@ -19,11 +19,11 @@ type ComFuncTab struct {
 }
 
 var comFuncTab = [6]ComFuncTab{
+	{ fun: restartGame, reg: "RESTART"},
 	{ fun: launchAI, reg: "BEGIN" },
-	{ fun: startGame, reg: "START" },
+	{ fun: startGame, reg: "^START" },
 	{ fun: enemyTurn, reg: "TURN" },
 	{ fun: endGame, reg: "END" },
-	{ fun: restartGame, reg: "RESTART"},
 	{fun: aboutAI, reg: "ABOUT"},
 }
 
@@ -43,7 +43,7 @@ func restartGame(com string) {
 			ai.GameBoard[line][section] = 0
 		}
 	}
-
+	fmt.Println("OK - everything is good")
 }
 
 func enemyTurn(com string)  {
