@@ -67,6 +67,7 @@ func enemyTurn(com string)  {
 		fmt.Println("Index out of range")
 	}
 	fmt.Println("OK - everything is good")
+	ai.LastEnemyPosition = ai.Position{x, y}
 	launchAI(com)
 }
 
