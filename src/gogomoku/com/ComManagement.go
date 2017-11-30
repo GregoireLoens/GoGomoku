@@ -37,12 +37,16 @@ func endGame(_ string) {
 	isActive = false
 }
 
-func restartGame(com string) {
+func restartGame(_ string) {
 	for line := range ai.GameBoard {
 		for section := range  ai.GameBoard[line] {
 			ai.GameBoard[line][section] = 0
 		}
 	}
+	ai.LastEnemyPosition.X = 0
+	ai.LastEnemyPosition.Y = 0
+	ai.LastPlayerPosition.X = 0
+	ai.LastPlayerPosition.Y = 0
 	fmt.Println("OK")
 }
 
@@ -62,7 +66,7 @@ func enemyTurn(com string)  {
 	}
 
 	if len(ai.GameBoard) >= x && len(ai.GameBoard[x - 1]) >= y {
-		ai.GameBoard[x - 1][y - 1] = 1
+		ai.GameBoard[x - 1][y - 1] = 2
 	} else {
 		fmt.Println("Index out of range")
 	}
