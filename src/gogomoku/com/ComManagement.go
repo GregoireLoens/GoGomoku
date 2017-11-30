@@ -43,7 +43,7 @@ func restartGame(com string) {
 			ai.GameBoard[line][section] = 0
 		}
 	}
-	fmt.Println("OK - everything is good")
+	fmt.Println("OK")
 }
 
 func enemyTurn(com string)  {
@@ -66,8 +66,8 @@ func enemyTurn(com string)  {
 	} else {
 		fmt.Println("Index out of range")
 	}
-	fmt.Println("OK - everything is good")
-	ai.LastEnemyPosition = ai.Position{x, y}
+	ai.LastEnemyPosition.X = x
+	ai.LastEnemyPosition.Y = y
 	launchAI(com)
 }
 
@@ -87,7 +87,7 @@ func startGame(com string) {
 			ai.GameBoard[x][y] = 0
 		}
 	}
-	fmt.Println("OK - everything is good")
+	fmt.Println("OK")
 }
 
 func launchAI(_ string) {
