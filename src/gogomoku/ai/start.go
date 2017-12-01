@@ -5,6 +5,7 @@ import (
 )
 
 var GameBoard [][]int
+var WeightGameBoard [][]int
 
 type Position struct {
 	X int
@@ -40,103 +41,111 @@ func posIsAvailable(pos Position) bool {
 	return false
 }
 
-func calcWeightByStarPart(pos Position, player int, weightToSet *int) bool {
+func calcWeightOfCase_(pos Position, player int, emptyCase *int, playerCase *int) bool {
 	if posIsValid(pos) {
-		if GameBoard[pos.X][pos.Y] == player {
-			*weightToSet++
-			return true
-		} else if GameBoard[pos.X][pos.Y] == otherPlayer(player) {
+		caseToCheck := GameBoard[pos.X][pos.Y]
+		if caseToCheck == player {
+			*playerCase++
+		} else if caseToCheck == 0 {
+			*emptyCase++
+		} else {
 			return false
 		}
 		return true
+	} else {
+		return false
 	}
-	return false
 }
 
-func calcWeightByStar(position Position, turn int) int {
-	var weight = [8]int{0, 0, 0, 0, 0, 0, 0, 0}
-	func(weightToSet *int) {
+const weightNotEmptyPower = 3
+
+func calcWeightOfCase(origin Position, player int) [4]int {
+	var weight = [4]int{-1, -1, -1, -1}
+	func () {
+		var emptyCase = 1
+		var playerCase = 0
+		var continue1 = true
+		var continue2 = true
 		for i := 1; i < 5; i++ {
-			newPos := Position{position.X - i, position.Y}
-			if calcWeightByStarPart(newPos, turn, weightToSet) == false {
+			if !continue1 && !continue2 {
 				break
 			}
-		}
-	}(&weight[0])
-	func(weightToSet *int) {
-		for i := 1; i < 5; i++ {
-			newPos := Position{position.X - i, position.Y + i}
-			if calcWeightByStarPart(newPos, turn, weightToSet) == false {
-				break
+			if continue1 {
+				continue1 = calcWeightOfCase_(Position{origin.X - i, origin.Y}, player, &emptyCase, &playerCase)
+			}
+			if continue2 {
+				continue2 = calcWeightOfCase_(Position{origin.X + i, origin.Y}, player, &emptyCase, &playerCase)
 			}
 		}
-	}(&weight[1])
-	func(weightToSet *int) {
+		if emptyCase + playerCase > 4 {
+			weight[0] = 5 - playerCase + weightNotEmptyPower ^ playerCase
+		}
+	}()
+	func () {
+		var emptyCase = 1
+		var playerCase = 0
+		var continue1 = true
+		var continue2 = true
 		for i := 1; i < 5; i++ {
-			newPos := Position{position.X, position.Y + i}
-			if calcWeightByStarPart(newPos, turn, weightToSet) == false {
+			if !continue1 && !continue2 {
 				break
 			}
-		}
-	}(&weight[2])
-	func(weightToSet *int) {
-		for i := 1; i < 5; i++ {
-			newPos := Position{position.X + i, position.Y + i}
-			if calcWeightByStarPart(newPos, turn, weightToSet) == false {
-				break
+			if continue1 {
+				continue1 = calcWeightOfCase_(Position{origin.X - i, origin.Y + i}, player, &emptyCase, &playerCase)
+			}
+			if continue2 {
+				continue2 = calcWeightOfCase_(Position{origin.X + i, origin.Y - i}, player, &emptyCase, &playerCase)
 			}
 		}
-	}(&weight[3])
-	func(weightToSet *int) {
+		if emptyCase + playerCase > 4 {
+			weight[1] = 5 - playerCase + weightNotEmptyPower ^ playerCase
+		}
+	}()
+	func () {
+		var emptyCase = 1
+		var playerCase = 0
+		var continue1 = true
+		var continue2 = true
 		for i := 1; i < 5; i++ {
-			newPos := Position{position.X + i, position.Y}
-			if calcWeightByStarPart(newPos, turn, weightToSet) == false {
+			if !continue1 && !continue2 {
 				break
 			}
-		}
-	}(&weight[4])
-	func(weightToSet *int) {
-		for i := 1; i < 5; i++ {
-			newPos := Position{position.X + i, position.Y - i}
-			if calcWeightByStarPart(newPos, turn, weightToSet) == false {
-				break
+			if continue1 {
+				continue1 = calcWeightOfCase_(Position{origin.X, origin.Y + i}, player, &emptyCase, &playerCase)
+			}
+			if continue2 {
+				continue2 = calcWeightOfCase_(Position{origin.X, origin.Y - i}, player, &emptyCase, &playerCase)
 			}
 		}
-	}(&weight[5])
-	func(weightToSet *int) {
+		if emptyCase + playerCase > 4 {
+			weight[2] = 5 - playerCase + weightNotEmptyPower ^ playerCase
+		}
+	}()
+	func () {
+		var emptyCase = 1
+		var playerCase = 0
+		var continue1 = true
+		var continue2 = true
 		for i := 1; i < 5; i++ {
-			newPos := Position{position.X, position.Y - i}
-			if calcWeightByStarPart(newPos, turn, weightToSet) == false {
+			if !continue1 && !continue2 {
 				break
 			}
-		}
-	}(&weight[6])
-	func(weightToSet *int) {
-		for i := 1; i < 5; i++ {
-			newPos := Position{position.X - i, position.Y - i}
-			if calcWeightByStarPart(newPos, turn, weightToSet) == false {
-				break
+			if continue1 {
+				continue1 = calcWeightOfCase_(Position{origin.X + i, origin.Y + i}, player, &emptyCase, &playerCase)
+			}
+			if continue2 {
+				continue2 = calcWeightOfCase_(Position{origin.X - i, origin.Y - i}, player, &emptyCase, &playerCase)
 			}
 		}
-	}(&weight[7])
-	return weight[0] ^ 4 + weight[1] ^ 4 + weight[2] ^ 4 + weight[3] ^ 4 +
-		weight[4] ^ 4 + weight[5] ^ 4 + weight[6] ^ 4 + weight[7] ^ 4
+		if emptyCase + playerCase > 4 {
+			weight[3] = 5 - playerCase + weightNotEmptyPower ^ playerCase
+		}
+	}()
+	return weight
 }
 
-// SI ON CHANGE MAX PROFONDEUR, IL FAUT LA CHANGER ICI
-func calcBestPosition(pos Position, profondeur int) int {
-	if GameBoard[pos.X][pos.Y] == 0 {
-		return calcWeightByStar(pos, 1) ^ profondeur + calcWeightByStar(pos, 2) ^ profondeur + calcAllBestPosition(pos, profondeur-1)
-	}
-	return 0
-}
-
-func calcAllBestPosition(origin Position, profondeur int) int {
-	if profondeur == 0 {
-		return 0
-	}
-
-	var weight = [8]int{-1, -1, -1, -1, -1, -1, -1, -1}
+func calcAllWeightOfCase(bestPosition *Position, bestWeight *[4]int, origin Position, player int) {
+	var weight = [8][4]int{{0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}}
 	var pos = [8]Position{
 		{origin.X - 1, origin.Y},
 		{origin.X - 1, origin.Y + 1},
@@ -148,112 +157,83 @@ func calcAllBestPosition(origin Position, profondeur int) int {
 		{origin.X - 1, origin.Y - 1},
 	}
 
-	if posIsAvailable(pos[0]) {
-		weight[0] = calcBestPosition(pos[0], profondeur)
-	}
-	if posIsAvailable(pos[1]) {
-		weight[1] = calcBestPosition(pos[1], profondeur)
-	}
-	if posIsAvailable(pos[2]) {
-		weight[2] = calcBestPosition(pos[2], profondeur)
-	}
-	if posIsAvailable(pos[3]) {
-		weight[3] = calcBestPosition(pos[3], profondeur)
-	}
-	if posIsAvailable(pos[4]) {
-		weight[4] = calcBestPosition(pos[4], profondeur)
-	}
-	if posIsAvailable(pos[5]) {
-		weight[5] = calcBestPosition(pos[5], profondeur)
-	}
-	if posIsAvailable(pos[6]) {
-		weight[6] = calcBestPosition(pos[6], profondeur)
-	}
-	if posIsAvailable(pos[7]) {
-		weight[7] = calcBestPosition(pos[7], profondeur)
-	}
-
-	var max = 0
-	for i := 1; i < 8; i++ {
-		if weight[i] > weight[max] {
-			max = i
+	for i := 0; i < 8; i ++ {
+		if posIsAvailable(pos[i]) && WeightGameBoard[pos[i].X][pos[i].Y] == 0 {
+			weight[i] = calcWeightOfCase(pos[i], player)
 		}
 	}
-	return weight[max]
-}
 
-func bestPosition(origin Position, profondeur int) Position {
-	var weight = [8]int{-1, -1, -1, -1, -1, -1, -1, -1}
-	var pos = [8]Position{
-		{origin.X - 1, origin.Y},
-		{origin.X - 1, origin.Y + 1},
-		{origin.X, origin.Y + 1},
-		{origin.X + 1, origin.Y + 1},
-		{origin.X + 1, origin.Y},
-		{origin.X + 1, origin.Y - 1},
-		{origin.X, origin.Y - 1},
-		{origin.X - 1, origin.Y - 1},
-	}
-	if posIsAvailable(pos[0]) {
-		weight[0] = calcAllBestPosition(pos[0], profondeur)
-	}
-	if posIsAvailable(pos[1]) {
-		weight[1] = calcAllBestPosition(pos[1], profondeur)
-	}
-	if posIsAvailable(pos[2]) {
-		weight[2] = calcAllBestPosition(pos[2], profondeur)
-	}
-	if posIsAvailable(pos[3]) {
-		weight[3] = calcAllBestPosition(pos[3], profondeur)
-	}
-	if posIsAvailable(pos[4]) {
-		weight[4] = calcAllBestPosition(pos[4], profondeur)
-	}
-	if posIsAvailable(pos[5]) {
-		weight[5] = calcAllBestPosition(pos[5], profondeur)
-	}
-	if posIsAvailable(pos[6]) {
-		weight[6] = calcAllBestPosition(pos[6], profondeur)
-	}
-	if posIsAvailable(pos[7]) {
-		weight[7] = calcAllBestPosition(pos[7], profondeur)
-	}
-	var max = 0
-	for i := 1; i < 8; i++ {
-		if weight[i] > weight[max] {
-			max = i
+	for i := range weight {
+		if weight[i][0] > (*bestWeight)[0] || weight[i][1] > (*bestWeight)[1] || weight[i][2] > (*bestWeight)[2] || weight[i][3] > (*bestWeight)[3] {
+			*bestWeight = weight[i]
+			*bestPosition = pos[i]
+		}
+		if posIsAvailable(pos[i]) {
+			WeightGameBoard[pos[i].X][pos[i].Y] = 1
 		}
 	}
-	return pos[max]
 }
 
-func firstTurn() Position {
-	return Position{len(GameBoard) / 2, len(GameBoard) / 2}
+func calcBestPositionAndWeight(bestPosition *Position, bestWeight *[4]int, player int) {
+	for x := range GameBoard {
+		for y := range GameBoard[x] {
+			if GameBoard[x][y] == player {
+				calcAllWeightOfCase(bestPosition, bestWeight, Position{x, y}, player)
+			}
+		}
+	}
 }
+
+const weightAlarm = weightNotEmptyPower ^ 4 + 1
+const weightWarning = weightNotEmptyPower ^ 3 + 2
 
 func turn() Position {
-	var enemyWeight = -1
-	var playerWeight = -1
-	if hasPlayed(LastPlayerPosition) {
-		playerWeight = calcWeightByStar(LastPlayerPosition, 1)
+	if !hasPlayed(LastPlayerPosition) && !hasPlayed(LastEnemyPosition) { // If first turn
+		return Position{len(GameBoard) / 2, len(GameBoard) / 2}
 	}
-	if hasPlayed(LastEnemyPosition) {
-		enemyWeight = calcWeightByStar(LastEnemyPosition, 2)
+
+	var bestPlayerPosition = Position{0, 0}
+	var bestPlayerWeight = [4]int{-1, -1, -1, -1}
+	var bestEnemyPosition = Position{0, 0}
+	var bestEnemyWeight = [4]int{-1, -1, -1, -1}
+
+	for x := range WeightGameBoard {
+		for y := range WeightGameBoard[x] {
+			WeightGameBoard[x][y] = 0
+		}
 	}
-	if enemyWeight == -1 && playerWeight == -1 {
-		return firstTurn()
+	calcBestPositionAndWeight(&bestPlayerPosition, &bestPlayerWeight, 1)
+
+	if bestPlayerWeight[0] == weightAlarm || bestPlayerWeight[1] == weightAlarm || bestPlayerWeight[2] == weightAlarm || bestPlayerWeight[3] == weightAlarm {
+		return bestPlayerPosition
 	}
-	if playerWeight > enemyWeight {
-		return bestPosition(LastPlayerPosition, 2)
-	} else {
-		return bestPosition(LastEnemyPosition, 2)
+
+	for x := range WeightGameBoard {
+		for y := range WeightGameBoard[x] {
+			WeightGameBoard[x][y] = 0
+		}
 	}
+	calcBestPositionAndWeight(&bestEnemyPosition, &bestEnemyWeight, 2)
+
+	if bestEnemyWeight[0] == weightAlarm || bestEnemyWeight[1] == weightAlarm || bestEnemyWeight[2] == weightAlarm || bestEnemyWeight[3] == weightAlarm {
+		return bestEnemyPosition
+	} else if bestPlayerWeight[0] == weightWarning || bestPlayerWeight[1] == weightWarning || bestPlayerWeight[2] == weightWarning || bestPlayerWeight[3] == weightWarning {
+		return bestPlayerPosition
+	} else if bestEnemyWeight[0] == weightWarning || bestEnemyWeight[1] == weightWarning || bestEnemyWeight[2] == weightWarning || bestEnemyWeight[3] == weightWarning {
+		return bestEnemyPosition
+	}
+
+	var bestSumPlayerWeight = bestPlayerWeight[0] + bestPlayerWeight[1] + bestPlayerWeight[2] + bestPlayerWeight[3]
+	var bestSumEnemyWeight = bestEnemyWeight[0] + bestEnemyWeight[1] + bestEnemyWeight[2] + bestEnemyWeight[3]
+	if bestSumEnemyWeight > bestSumPlayerWeight {
+		return bestEnemyPosition
+	}
+	return bestPlayerPosition
 }
 
 func returnChan(comChan chan<- string, x int, y int) {
-	GameBoard[x][y] = 2
-	sX := strconv.Itoa(x + 1)
-	sY := strconv.Itoa(y + 1)
+	sX := strconv.Itoa(x)
+	sY := strconv.Itoa(y)
 	comChan <- sX + "," + sY
 	LastPlayerPosition.X = x
 	LastPlayerPosition.Y = y

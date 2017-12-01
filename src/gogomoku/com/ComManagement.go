@@ -43,10 +43,10 @@ func restartGame(_ string) {
 			ai.GameBoard[line][section] = 0
 		}
 	}
-	ai.LastEnemyPosition.X = 0
-	ai.LastEnemyPosition.Y = 0
-	ai.LastPlayerPosition.X = 0
-	ai.LastPlayerPosition.Y = 0
+	ai.LastEnemyPosition.X = -1
+	ai.LastEnemyPosition.Y = -1
+	ai.LastPlayerPosition.X = -1
+	ai.LastPlayerPosition.Y = -1
 	fmt.Println("OK")
 }
 
@@ -65,13 +65,11 @@ func enemyTurn(com string)  {
 		fmt.Println(err)
 	}
 
-	if len(ai.GameBoard) >= x && len(ai.GameBoard[x - 1]) >= y {
-		ai.GameBoard[x - 1][y - 1] = 2
-	} else {
-		fmt.Println("Index out of range")
-	}
+	ai.GameBoard[x][y] = 2
+
 	ai.LastEnemyPosition.X = x
 	ai.LastEnemyPosition.Y = y
+
 	launchAI(com)
 }
 
@@ -91,6 +89,15 @@ func startGame(com string) {
 			ai.GameBoard[x][y] = 0
 		}
 	}
+
+	ai.WeightGameBoard = make([][]int, size)
+	for x := range ai.WeightGameBoard {
+		ai.WeightGameBoard[x] = make([]int, size)
+		for y := range ai.WeightGameBoard[x] {
+			ai.WeightGameBoard[x][y] = 0
+		}
+	}
+
 	fmt.Println("OK")
 }
 
