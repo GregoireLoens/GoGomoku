@@ -27,7 +27,7 @@ func otherPlayer(player int) int {
 }
 
 func posIsValid(pos Position) bool {
-	if pos.X > 0 && pos.X < len(GameBoard) && pos.Y > 0 && pos.Y < len(GameBoard) {
+	if pos.X >= 0 && pos.X < len(GameBoard) && pos.Y >= 0 && pos.Y < len(GameBoard) {
 		return true
 	}
 	return false
