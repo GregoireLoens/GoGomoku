@@ -29,9 +29,6 @@ var comFuncTab = [6]ComFuncTab{
 
 var isActive bool = true
 
-func debugMessage(msg string) {
-	fmt.Println("DEBUG " + msg)
-}
 
 func aboutAI(com string) {
 	fmt.Println("name=GoGomoku, version=1.0, author=SaltTeam, country=France")
