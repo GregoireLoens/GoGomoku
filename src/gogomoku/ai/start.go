@@ -79,10 +79,10 @@ func calcWeightOfCase(origin Position, player int) [4]int {
 				continue2 = calcWeightOfCase_(Position{origin.X + i, origin.Y}, player, &emptyCase, &playerCase)
 			}
 		}
-		var res = 3
+		var res = weightNotEmptyPower
 		if emptyCase + playerCase > 4 {
 			for i:= 1; i < playerCase; i++{
-				res *= 3
+				res *= weightNotEmptyPower
 			}
 			weight[0] = 5 - playerCase + res
 		}
@@ -103,12 +103,12 @@ func calcWeightOfCase(origin Position, player int) [4]int {
 				continue2 = calcWeightOfCase_(Position{origin.X + i, origin.Y - i}, player, &emptyCase, &playerCase)
 			}
 		}
-		var res = 3
+		var res = weightNotEmptyPower
 		if emptyCase + playerCase > 4 {
 			for i:= 1; i < playerCase; i++{
-				res *= 3
+				res *= weightNotEmptyPower
 			}
-			weight[1] = 5 - playerCase + res
+			weight[0] = 5 - playerCase + res
 		}
 	}()
 	func () {
@@ -127,10 +127,10 @@ func calcWeightOfCase(origin Position, player int) [4]int {
 				continue2 = calcWeightOfCase_(Position{origin.X, origin.Y - i}, player, &emptyCase, &playerCase)
 			}
 		}
-		var res = 3
+		var res = weightNotEmptyPower
 		if emptyCase + playerCase > 4 {
 			for i:= 1; i < playerCase; i++{
-				res *= 3
+				res *= weightNotEmptyPower
 			}
 			weight[2] = 5 - playerCase + res
 		}
@@ -151,10 +151,10 @@ func calcWeightOfCase(origin Position, player int) [4]int {
 				continue2 = calcWeightOfCase_(Position{origin.X - i, origin.Y - i}, player, &emptyCase, &playerCase)
 			}
 		}
-		var res = 3
+		var res = weightNotEmptyPower
 		if emptyCase + playerCase > 4 {
 			for i:= 1; i < playerCase; i++{
-				res *= 3
+				res *= weightNotEmptyPower
 			}
 			weight[3] = 5 - playerCase + res
 		}
