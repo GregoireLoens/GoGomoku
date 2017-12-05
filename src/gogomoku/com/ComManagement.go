@@ -91,11 +91,18 @@ func startGame(com string) {
 		}
 	}
 
-	ai.WeightGameBoard = make([][]int, size)
-	for x := range ai.WeightGameBoard {
-		ai.WeightGameBoard[x] = make([]int, size)
-		for y := range ai.WeightGameBoard[x] {
-			ai.WeightGameBoard[x][y] = 0
+	ai.PlayerWeightGameBoard = make([][]int, size)
+	for x := range ai.PlayerWeightGameBoard {
+		ai.PlayerWeightGameBoard[x] = make([]int, size)
+		for y := range ai.PlayerWeightGameBoard[x] {
+			ai.PlayerWeightGameBoard[x][y] = 0
+		}
+	}
+	ai.EnnemyWeightGameBoard = make([][]int, size)
+	for x := range ai.EnnemyWeightGameBoard {
+		ai.EnnemyWeightGameBoard[x] = make([]int, size)
+		for y := range ai.EnnemyWeightGameBoard[x] {
+			ai.EnnemyWeightGameBoard[x][y] = 0
 		}
 	}
 
