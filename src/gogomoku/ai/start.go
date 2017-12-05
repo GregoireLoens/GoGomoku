@@ -118,38 +118,22 @@ func calcWeightOfLine(player int, weightToSet *int, lineFunc calcWeightOfLineFun
 
 func calcWeightOfCase(origin Position, player int) [4]int {
 	var weight = [4]int{-1, -1, -1, -1}
-	wg := new(sync.WaitGroup)
-	wg.Add(4)
-	go func () {
-		defer wg.Done()
-		calcWeightOfLine(player, &weight[0], func(a int, b int) Position {
-			return Position{origin.X - b + a, origin.Y}
-		})
-	}()
-	go func () {
-		defer wg.Done()
-		calcWeightOfLine(player, &weight[0], func(a int, b int) Position {
-			return Position{origin.X - b + a, origin.Y + b - a}
-		})
-	}()
-	go func () {
-		defer wg.Done()
-		calcWeightOfLine(player, &weight[0], func(a int, b int) Position {
-			return Position{origin.X, origin.Y + b - a}
-		})
-	}()
-	go func () {
-		defer wg.Done()
-		calcWeightOfLine(player, &weight[0], func(a int, b int) Position {
-			return Position{origin.X + b + a, origin.Y + b - a}
-		})
-	}()
-	wg.Wait()
+	calcWeightOfLine(player, &weight[0], func(a int, b int) Position {
+		return Position{origin.X - b + a, origin.Y}
+	})
+	calcWeightOfLine(player, &weight[0], func(a int, b int) Position {
+		return Position{origin.X - b + a, origin.Y + b - a}
+	})
+	calcWeightOfLine(player, &weight[0], func(a int, b int) Position {
+		return Position{origin.X, origin.Y + b - a}
+	})
+	calcWeightOfLine(player, &weight[0], func(a int, b int) Position {
+		return Position{origin.X + b + a, origin.Y + b - a}
+	})
 	return weight
 }
 
 func calcAllWeightOfCase(bestPosition *Position, bestWeight *int, origin Position, tab int, player int) {
-	var weight = [8][4]int{{0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}}
 	var pos = [8]Position{
 		{origin.X - 1, origin.Y},
 		{origin.X - 1, origin.Y + 1},
@@ -160,23 +144,26 @@ func calcAllWeightOfCase(bestPosition *Position, bestWeight *int, origin Positio
 		{origin.X, origin.Y - 1},
 		{origin.X - 1, origin.Y - 1},
 	}
+	wg := new(sync.WaitGroup)
 
+	wg.Add(8)
 	for i := 0; i < 8; i ++ {
-		if posIsAvailable(pos[i]) && WeightGameBoard[tab][pos[i].X][pos[i].Y] == 0 {
-			weight[i] = calcWeightOfCase(pos[i], player)
-		}
-	}
-	for i := range weight {
-		for j := 0; j < 4; j++ {
-			if weight[i][j] > *bestWeight {
-				*bestWeight = weight[i][j]
-				*bestPosition = pos[i]
+		go func(index int) {
+			defer wg.Done()
+			var weight [4]int
+			if posIsAvailable(pos[index]) && WeightGameBoard[tab][pos[index].X][pos[index].Y] == 0 {
+				weight = calcWeightOfCase(pos[index], player)
+				for j := 0; j < 4; j++ {
+					if weight[j] > *bestWeight {
+						*bestWeight = weight[j]
+						*bestPosition = pos[index]
+					}
+				}
+				WeightGameBoard[tab][pos[index].X][pos[index].Y] = weight[0] + weight[1] + weight[2] + weight[3]
 			}
-		}
-		if posIsAvailable(pos[i]) {
-			WeightGameBoard[tab][pos[i].X][pos[i].Y] = weight[i][0] + weight[i][1] + weight[i][2] + weight[i][3]
-		}
+		}(i)
 	}
+	wg.Wait()
 }
 
 func calcBestPositionAndWeight(bestPosition *Position, bestWeight *int, tab int, player int) {
