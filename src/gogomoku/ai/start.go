@@ -2,6 +2,7 @@ package ai
 
 import (
 	"strconv"
+	"sync"
 )
 
 var GameBoard [][]int
@@ -63,7 +64,10 @@ func calcWeightOfCase_(pos Position, player int, emptyCase *int, playerCase *int
 
 func calcWeightOfCase(origin Position, player int) [4]int {
 	var weight = [4]int{-1, -1, -1, -1}
-	func () {
+	wg := new(sync.WaitGroup)
+	wg.Add(4)
+	go func () {
+		defer wg.Done()
 		for a := 0; a < 5; a++ {
 			var emptyCaseA = 0
 			var emptyCaseB = 0
@@ -114,7 +118,8 @@ func calcWeightOfCase(origin Position, player int) [4]int {
 
 		}
 	}()
-	func () {
+	go func () {
+		defer wg.Done()
 		for a := 0; a < 5; a++ {
 			var emptyCaseA = 0
 			var emptyCaseB = 0
@@ -164,7 +169,8 @@ func calcWeightOfCase(origin Position, player int) [4]int {
 			}
 		}
 	}()
-	func () {
+	go func () {
+		defer wg.Done()
 		for a := 0; a < 5; a++ {
 			var emptyCaseA = 0
 			var emptyCaseB = 0
@@ -214,7 +220,8 @@ func calcWeightOfCase(origin Position, player int) [4]int {
 			}
 		}
 	}()
-	func () {
+	go func () {
+		defer wg.Done()
 		for a := 0; a < 5; a++ {
 			var emptyCaseA = 0
 			var emptyCaseB = 0
@@ -264,6 +271,7 @@ func calcWeightOfCase(origin Position, player int) [4]int {
 			}
 		}
 	}()
+	wg.Wait()
 	return weight
 }
 
