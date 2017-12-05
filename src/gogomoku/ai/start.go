@@ -5,8 +5,7 @@ import (
 )
 
 var GameBoard [][]int
-var PlayerWeightGameBoard [][]int
-var EnnemyWeightGameBoard [][]int
+var WeightGameBoard [][]int
 
 type Position struct {
 	X int
@@ -176,9 +175,8 @@ func calcAllWeightOfCase(bestPosition *Position, bestWeight *[4]int, origin Posi
 		{origin.X - 1, origin.Y - 1},
 	}
 
-	if player == 1 {
 		for i := 0; i < 8; i ++ {
-			if posIsAvailable(pos[i]) && PlayerWeightGameBoard[pos[i].X][pos[i].Y] == 0 {
+			if posIsAvailable(pos[i]) && WeightGameBoard[pos[i].X][pos[i].Y] == 0 {
 				weight[i] = calcWeightOfCase(pos[i], player)
 			}
 		}
@@ -189,28 +187,10 @@ func calcAllWeightOfCase(bestPosition *Position, bestWeight *[4]int, origin Posi
 				*bestPosition = pos[i]
 			}
 			if posIsAvailable(pos[i]) {
-				PlayerWeightGameBoard[pos[i].X][pos[i].Y] = 1
+				WeightGameBoard[pos[i].X][pos[i].Y] = 1
 			}
 		}
-	}
-	if player == 2 {
-		for i := 0; i < 8; i ++ {
-			if posIsAvailable(pos[i]) && EnnemyWeightGameBoard[pos[i].X][pos[i].Y] == 0 {
-				weight[i] = calcWeightOfCase(pos[i], player)
-			}
 		}
-		for i := range weight {
-			if weight[i][0] > (*bestWeight)[0] ||
-				weight[i][1] > (*bestWeight)[1] || weight[i][2] > (*bestWeight)[2] || weight[i][3] > (*bestWeight)[3] {
-				*bestWeight = weight[i]
-				*bestPosition = pos[i]
-			}
-			if posIsAvailable(pos[i]) {
-				EnnemyWeightGameBoard[pos[i].X][pos[i].Y] = 2
-			}
-		}
-	}
-}
 
 func calcBestPositionAndWeight(bestPosition *Position, bestWeight *[4]int, player int) {
 	for x := range GameBoard {
@@ -232,9 +212,9 @@ func turn() Position {
 	var bestEnemyPosition = Position{0, 0}
 	var bestEnemyWeight = [4]int{-1, -1, -1, -1}
 
-	for x := range PlayerWeightGameBoard {
-		for y := range PlayerWeightGameBoard[x] {
-			PlayerWeightGameBoard[x][y] = 0
+	for x := range WeightGameBoard {
+		for y := range WeightGameBoard[x] {
+			WeightGameBoard[x][y] = 0
 		}
 	}
 	calcBestPositionAndWeight(&bestPlayerPosition, &bestPlayerWeight, 1)
@@ -253,9 +233,9 @@ func turn() Position {
 		return bestPlayerPosition
 	}
 
-	for x := range EnnemyWeightGameBoard {
-		for y := range EnnemyWeightGameBoard[x] {
-			EnnemyWeightGameBoard[x][y] = 0
+	for x := range WeightGameBoard {
+		for y := range WeightGameBoard[x] {
+			WeightGameBoard[x][y] = 0
 		}
 	}
 	calcBestPositionAndWeight(&bestEnemyPosition, &bestEnemyWeight, 2)
