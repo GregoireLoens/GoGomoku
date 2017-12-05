@@ -162,7 +162,7 @@ func calcWeightOfCase(origin Position, player int) [4]int {
 	return weight
 }
 
-func calcAllWeightOfCase(bestPosition *Position, bestWeight *[4]int, origin Position, player int) {
+func calcAllWeightOfCase(bestPosition *Position, bestWeight *int, origin Position, player int) {
 	var weight = [8][4]int{{0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}}
 	var pos = [8]Position{
 		{origin.X - 1, origin.Y},
@@ -175,24 +175,25 @@ func calcAllWeightOfCase(bestPosition *Position, bestWeight *[4]int, origin Posi
 		{origin.X - 1, origin.Y - 1},
 	}
 
-		for i := 0; i < 8; i ++ {
-			if posIsAvailable(pos[i]) && WeightGameBoard[pos[i].X][pos[i].Y] == 0 {
-				weight[i] = calcWeightOfCase(pos[i], player)
-			}
+	for i := 0; i < 8; i ++ {
+		if posIsAvailable(pos[i]) && WeightGameBoard[pos[i].X][pos[i].Y] == 0 {
+			weight[i] = calcWeightOfCase(pos[i], player)
 		}
-		for i := range weight {
-			if weight[i][0] > (*bestWeight)[0] ||
-				weight[i][1] > (*bestWeight)[1] || weight[i][2] > (*bestWeight)[2] || weight[i][3] > (*bestWeight)[3] {
-				*bestWeight = weight[i]
+	}
+	for i := range weight {
+		for j := 0; j < 4; j++ {
+			if weight[i][j] > *bestWeight {
+				*bestWeight = weight[i][j]
 				*bestPosition = pos[i]
 			}
-			if posIsAvailable(pos[i]) {
-				WeightGameBoard[pos[i].X][pos[i].Y] = 1
-			}
 		}
+		if posIsAvailable(pos[i]) {
+			WeightGameBoard[pos[i].X][pos[i].Y] = 1
 		}
+	}
+}
 
-func calcBestPositionAndWeight(bestPosition *Position, bestWeight *[4]int, player int) {
+func calcBestPositionAndWeight(bestPosition *Position, bestWeight *int, player int) {
 	for x := range GameBoard {
 		for y := range GameBoard[x] {
 			if GameBoard[x][y] == player {
@@ -208,9 +209,9 @@ func turn() Position {
 	}
 
 	var bestPlayerPosition = Position{0, 0}
-	var bestPlayerWeight = [4]int{-1, -1, -1, -1}
+	var bestPlayerWeight = -1
 	var bestEnemyPosition = Position{0, 0}
-	var bestEnemyWeight = [4]int{-1, -1, -1, -1}
+	var bestEnemyWeight = -1
 
 	for x := range WeightGameBoard {
 		for y := range WeightGameBoard[x] {
@@ -229,7 +230,7 @@ func turn() Position {
 
 	weight:= strconv.Itoa(weightAlarm)
 	debugMessage("Weight alarm is " + weight)*/
-	if bestPlayerWeight[0] == weightAlarm || bestPlayerWeight[1] == weightAlarm || bestPlayerWeight[2] == weightAlarm || bestPlayerWeight[3] == weightAlarm {
+	if bestPlayerWeight == weightAlarm  {
 		return bestPlayerPosition
 	}
 
@@ -249,21 +250,18 @@ func turn() Position {
 	d := strconv.Itoa(bestEnemyWeight[3])
 	debugMessage(d + " ennemy pos 3")*/
 
-	if bestEnemyWeight[0] == weightAlarm || bestEnemyWeight[1] == weightAlarm || bestEnemyWeight[2] == weightAlarm || bestEnemyWeight[3] == weightAlarm {
+	if bestEnemyWeight == weightAlarm {
 		return bestEnemyPosition
-	} else if bestPlayerWeight[0] == weightWarning || bestPlayerWeight[1] == weightWarning || bestPlayerWeight[2] == weightWarning || bestPlayerWeight[3] == weightWarning {
+	} else if bestPlayerWeight == weightWarning {
 		return bestPlayerPosition
-	} else if bestEnemyWeight[0] == weightWarning || bestEnemyWeight[1] == weightWarning || bestEnemyWeight[2] == weightWarning || bestEnemyWeight[3] == weightWarning {
+	} else if bestEnemyWeight == weightWarning {
 		return bestEnemyPosition
 	}
-
-	var bestSumPlayerWeight = bestPlayerWeight[0] + bestPlayerWeight[1] + bestPlayerWeight[2] + bestPlayerWeight[3]
-	var bestSumEnemyWeight = bestEnemyWeight[0] + bestEnemyWeight[1] + bestEnemyWeight[2] + bestEnemyWeight[3]
 
 	/*g := strconv.Itoa(bestSumPlayerWeight)
 	h := strconv.Itoa(bestSumEnemyWeight)
 	debugMessage(g + " contre " + h)*/
-	if bestSumEnemyWeight > bestSumPlayerWeight {
+	if bestEnemyWeight > bestPlayerWeight {
 		return bestEnemyPosition
 	}
 	return bestPlayerPosition
