@@ -5,7 +5,7 @@ import (
 )
 
 var GameBoard [][]int
-var WeightGameBoard [][]int
+var WeightGameBoard [2][][]int
 
 type Position struct {
 	X int
@@ -162,7 +162,7 @@ func calcWeightOfCase(origin Position, player int) [4]int {
 	return weight
 }
 
-func calcAllWeightOfCase(bestPosition *Position, bestWeight *int, origin Position, player int) {
+func calcAllWeightOfCase(bestPosition *Position, bestWeight *int, origin Position, tab int, player int) {
 	var weight = [8][4]int{{0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}}
 	var pos = [8]Position{
 		{origin.X - 1, origin.Y},
@@ -176,7 +176,7 @@ func calcAllWeightOfCase(bestPosition *Position, bestWeight *int, origin Positio
 	}
 
 	for i := 0; i < 8; i ++ {
-		if posIsAvailable(pos[i]) && WeightGameBoard[pos[i].X][pos[i].Y] == 0 {
+		if posIsAvailable(pos[i]) && WeightGameBoard[tab][pos[i].X][pos[i].Y] == 0 {
 			weight[i] = calcWeightOfCase(pos[i], player)
 		}
 	}
@@ -188,19 +188,36 @@ func calcAllWeightOfCase(bestPosition *Position, bestWeight *int, origin Positio
 			}
 		}
 		if posIsAvailable(pos[i]) {
-			WeightGameBoard[pos[i].X][pos[i].Y] = 1
+			WeightGameBoard[tab][pos[i].X][pos[i].Y] = weight[i][0] + weight[i][1] + weight[i][2] + weight[i][3]
 		}
 	}
 }
 
-func calcBestPositionAndWeight(bestPosition *Position, bestWeight *int, player int) {
+func calcBestPositionAndWeight(bestPosition *Position, bestWeight *int, tab int, player int) {
 	for x := range GameBoard {
 		for y := range GameBoard[x] {
 			if GameBoard[x][y] == player {
-				calcAllWeightOfCase(bestPosition, bestWeight, Position{x, y}, player)
+				calcAllWeightOfCase(bestPosition, bestWeight, Position{x, y}, tab, player)
 			}
 		}
 	}
+}
+
+func bestPositionInWeightBoard() Position {
+	var bestWeight = -1
+	var bestPosition Position
+
+	for a := 0; a < 2; a++ {
+		for x := range WeightGameBoard[a] {
+			for y := range WeightGameBoard[a][x] {
+				if WeightGameBoard[a][x][y] > bestWeight {
+					bestWeight = WeightGameBoard[a][x][y]
+					bestPosition = Position{x, y}
+				}
+			}
+		}
+	}
+	return bestPosition
 }
 
 func turn() Position {
@@ -213,42 +230,27 @@ func turn() Position {
 	var bestEnemyPosition = Position{0, 0}
 	var bestEnemyWeight = -1
 
-	for x := range WeightGameBoard {
-		for y := range WeightGameBoard[x] {
-			WeightGameBoard[x][y] = 0
+	for a := 0; a < 2; a ++ {
+		for x := range WeightGameBoard[a] {
+			for y := range WeightGameBoard[a][x] {
+				WeightGameBoard[a][x][y] = 0
+			}
 		}
 	}
-	calcBestPositionAndWeight(&bestPlayerPosition, &bestPlayerWeight, 1)
-	/*t := strconv.Itoa(bestPlayerWeight[0])
-	debugMessage(t + " pos 0")
-	u := strconv.Itoa(bestPlayerWeight[1])
-	debugMessage(u + " pos 1")
-	v := strconv.Itoa(bestPlayerWeight[2])
-	debugMessage(v + " pos 2")
-	w := strconv.Itoa(bestPlayerWeight[3])
-	debugMessage(w + " pos 3")
+	calcBestPositionAndWeight(&bestPlayerPosition, &bestPlayerWeight, 0, 1)
 
-	weight:= strconv.Itoa(weightAlarm)
-	debugMessage("Weight alarm is " + weight)*/
 	if bestPlayerWeight == weightAlarm  {
 		return bestPlayerPosition
 	}
 
-	for x := range WeightGameBoard {
-		for y := range WeightGameBoard[x] {
-			WeightGameBoard[x][y] = 0
+	for a := 0; a < 2; a ++ {
+		for x := range WeightGameBoard[a] {
+			for y := range WeightGameBoard[a][x] {
+				WeightGameBoard[a][x][y] = 0
+			}
 		}
 	}
-	calcBestPositionAndWeight(&bestEnemyPosition, &bestEnemyWeight, 2)
-
-	/*a := strconv.Itoa(bestEnemyWeight[0])
-	debugMessage(a + " ennemy pos 0")
-	b := strconv.Itoa(bestEnemyWeight[1])
-	debugMessage(b + " ennemy pos 1")
-	c := strconv.Itoa(bestEnemyWeight[2])
-	debugMessage(c + " ennemy pos 2")
-	d := strconv.Itoa(bestEnemyWeight[3])
-	debugMessage(d + " ennemy pos 3")*/
+	calcBestPositionAndWeight(&bestEnemyPosition, &bestEnemyWeight,1, 2)
 
 	if bestEnemyWeight == weightAlarm {
 		return bestEnemyPosition
@@ -258,13 +260,7 @@ func turn() Position {
 		return bestEnemyPosition
 	}
 
-	/*g := strconv.Itoa(bestSumPlayerWeight)
-	h := strconv.Itoa(bestSumEnemyWeight)
-	debugMessage(g + " contre " + h)*/
-	if bestEnemyWeight > bestPlayerWeight {
-		return bestEnemyPosition
-	}
-	return bestPlayerPosition
+	return bestPositionInWeightBoard()
 }
 
 func returnChan(comChan chan<- string, x int, y int) {
