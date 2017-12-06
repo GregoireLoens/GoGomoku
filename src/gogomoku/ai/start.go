@@ -185,6 +185,20 @@ func bestPositionInWeightBoard() Position {
 	return bestPosition
 }
 
+func bestPositionInWarningStack() Position {
+	var bestWeight = -1
+	var bestPosition Position
+
+	for x := range warningStack {
+			if WeightGameBoard[0][warningStack[x].X][warningStack[x].Y] + WeightGameBoard[1][warningStack[x].X][warningStack[x].Y] > bestWeight {
+				bestWeight = WeightGameBoard[0][warningStack[x].X][warningStack[x].Y]
+				bestPosition.X = warningStack[x].X
+				bestPosition.Y = warningStack[x].Y
+				}
+		}
+	return bestPosition
+}
+
 func turn() Position {
 	if !hasPlayed(LastPlayerPosition) && !hasPlayed(LastEnemyPosition) { // If first turn
 		return Position{len(GameBoard) / 2, len(GameBoard) / 2}
