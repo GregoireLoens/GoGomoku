@@ -19,6 +19,7 @@ var LastPlayerPosition = Position{-1, -1}
 const weightNotEmptyPower = 3
 const weightAlarm = 82
 const weightWarning = 29
+var warningStack[] Position
 
 func hasPlayed(pos Position) bool {
 	return pos.X != -1 && pos.Y != -1
@@ -149,6 +150,7 @@ func calcAllWeightOfCase(bestPosition *Position, bestWeight *int, origin Positio
 					if weight[j] > *bestWeight {
 						*bestWeight = weight[j]
 						*bestPosition = pos[index]
+						warningStack = append(warningStack, pos[index])
 					}
 				}
 				WeightGameBoard[tab][pos[index].X][pos[index].Y] = weight[0] + weight[1] + weight[2] + weight[3]
@@ -217,11 +219,8 @@ func turn() Position {
 	}
 	calcBestPositionAndWeight(&bestEnemyPosition, &bestEnemyWeight,1, 2)
 
+
 	if bestEnemyWeight == weightAlarm {
-		return bestEnemyPosition
-	} else if bestPlayerWeight == weightWarning {
-		return bestPlayerPosition
-	} else if bestEnemyWeight == weightWarning {
 		return bestEnemyPosition
 	}
 
