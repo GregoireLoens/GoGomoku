@@ -2,10 +2,11 @@ package ai
 
 import (
 	"strconv"
+	"sync"
 )
 
 var GameBoard [][]int
-var WeightGameBoard [][]int
+var WeightGameBoard [2][][]int
 
 type Position struct {
 	X int
@@ -14,6 +15,10 @@ type Position struct {
 
 var LastEnemyPosition = Position{-1, -1}
 var LastPlayerPosition = Position{-1, -1}
+
+const weightNotEmptyPower = 3
+const weightAlarm = 82
+const weightWarning = 29
 
 func hasPlayed(pos Position) bool {
 	return pos.X != -1 && pos.Y != -1
@@ -57,95 +62,78 @@ func calcWeightOfCase_(pos Position, player int, emptyCase *int, playerCase *int
 	}
 }
 
-const weightNotEmptyPower = 3
+type calcWeightOfLineFunc func(a int, b int) Position
+
+func calcWeightOfLine(player int, weightToSet *int, lineFunc calcWeightOfLineFunc) {
+	for a := 0; a < 5; a++ {
+		var emptyCaseA = 0
+		var emptyCaseB = 0
+		var playerCaseA = 0
+		var playerCaseB = 0
+		var continueA = true
+		var continueB = true
+
+		for b := 0; b < 5; b++ {
+
+			if !continueA && !continueB {
+				break
+			}
+			if continueA {
+				continueA = calcWeightOfCase_(lineFunc(a, b), player, &emptyCaseA, &playerCaseA)
+			}
+			if continueB {
+				continueB = calcWeightOfCase_(lineFunc(-a, -b), player, &emptyCaseB, &playerCaseB)
+			}
+		}
+
+		if continueA {
+			var newWeight int
+			var res = weightNotEmptyPower
+			if emptyCaseA + playerCaseA > 4 {
+				for i:= 1; i < playerCaseA; i++{
+					res *= weightNotEmptyPower
+				}
+				newWeight = 5 - playerCaseA + res
+				if *weightToSet < newWeight {
+					*weightToSet = newWeight
+				}
+			}
+		}
+		if continueB {
+			var newWeight int
+			var res = weightNotEmptyPower
+			if emptyCaseB + playerCaseB > 4 {
+				for i:= 1; i < playerCaseB; i++{
+					res *= weightNotEmptyPower
+				}
+				newWeight = 5 - playerCaseB + res
+				if *weightToSet < newWeight {
+					*weightToSet = newWeight
+				}
+			}
+		}
+
+	}
+}
 
 func calcWeightOfCase(origin Position, player int) [4]int {
 	var weight = [4]int{-1, -1, -1, -1}
-	func () {
-		var emptyCase = 1
-		var playerCase = 0
-		var continue1 = true
-		var continue2 = true
-		for i := 1; i < 5; i++ {
-			if !continue1 && !continue2 {
-				break
-			}
-			if continue1 {
-				continue1 = calcWeightOfCase_(Position{origin.X - i, origin.Y}, player, &emptyCase, &playerCase)
-			}
-			if continue2 {
-				continue2 = calcWeightOfCase_(Position{origin.X + i, origin.Y}, player, &emptyCase, &playerCase)
-			}
-		}
-		if emptyCase + playerCase > 4 {
-			weight[0] = 5 - playerCase + weightNotEmptyPower ^ playerCase
-		}
-	}()
-	func () {
-		var emptyCase = 1
-		var playerCase = 0
-		var continue1 = true
-		var continue2 = true
-		for i := 1; i < 5; i++ {
-			if !continue1 && !continue2 {
-				break
-			}
-			if continue1 {
-				continue1 = calcWeightOfCase_(Position{origin.X - i, origin.Y + i}, player, &emptyCase, &playerCase)
-			}
-			if continue2 {
-				continue2 = calcWeightOfCase_(Position{origin.X + i, origin.Y - i}, player, &emptyCase, &playerCase)
-			}
-		}
-		if emptyCase + playerCase > 4 {
-			weight[1] = 5 - playerCase + weightNotEmptyPower ^ playerCase
-		}
-	}()
-	func () {
-		var emptyCase = 1
-		var playerCase = 0
-		var continue1 = true
-		var continue2 = true
-		for i := 1; i < 5; i++ {
-			if !continue1 && !continue2 {
-				break
-			}
-			if continue1 {
-				continue1 = calcWeightOfCase_(Position{origin.X, origin.Y + i}, player, &emptyCase, &playerCase)
-			}
-			if continue2 {
-				continue2 = calcWeightOfCase_(Position{origin.X, origin.Y - i}, player, &emptyCase, &playerCase)
-			}
-		}
-		if emptyCase + playerCase > 4 {
-			weight[2] = 5 - playerCase + weightNotEmptyPower ^ playerCase
-		}
-	}()
-	func () {
-		var emptyCase = 1
-		var playerCase = 0
-		var continue1 = true
-		var continue2 = true
-		for i := 1; i < 5; i++ {
-			if !continue1 && !continue2 {
-				break
-			}
-			if continue1 {
-				continue1 = calcWeightOfCase_(Position{origin.X + i, origin.Y + i}, player, &emptyCase, &playerCase)
-			}
-			if continue2 {
-				continue2 = calcWeightOfCase_(Position{origin.X - i, origin.Y - i}, player, &emptyCase, &playerCase)
-			}
-		}
-		if emptyCase + playerCase > 4 {
-			weight[3] = 5 - playerCase + weightNotEmptyPower ^ playerCase
-		}
-	}()
+	calcWeightOfLine(player, &weight[0], func(a int, b int) Position {
+		return Position{origin.X - b + a, origin.Y}
+	})
+	calcWeightOfLine(player, &weight[0], func(a int, b int) Position {
+		return Position{origin.X - b + a, origin.Y + b - a}
+	})
+	calcWeightOfLine(player, &weight[0], func(a int, b int) Position {
+		return Position{origin.X, origin.Y + b - a}
+	})
+	calcWeightOfLine(player, &weight[0], func(a int, b int) Position {
+		return Position{origin.X + b + a, origin.Y + b - a}
+	})
 	return weight
 }
 
-func calcAllWeightOfCase(bestPosition *Position, bestWeight *[4]int, origin Position, player int) {
-	var weight = [8][4]int{{0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}}
+func calcAllWeightOfCase(bestPosition *Position, bestWeight *int, origin Position, tab int, player int) {
 	var pos = [8]Position{
 		{origin.X - 1, origin.Y},
 		{origin.X - 1, origin.Y + 1},
@@ -156,36 +144,54 @@ func calcAllWeightOfCase(bestPosition *Position, bestWeight *[4]int, origin Posi
 		{origin.X, origin.Y - 1},
 		{origin.X - 1, origin.Y - 1},
 	}
+	wg := new(sync.WaitGroup)
 
+	wg.Add(8)
 	for i := 0; i < 8; i ++ {
-		if posIsAvailable(pos[i]) && WeightGameBoard[pos[i].X][pos[i].Y] == 0 {
-			weight[i] = calcWeightOfCase(pos[i], player)
-		}
+		go func(index int) {
+			defer wg.Done()
+			var weight [4]int
+			if posIsAvailable(pos[index]) && WeightGameBoard[tab][pos[index].X][pos[index].Y] == 0 {
+				weight = calcWeightOfCase(pos[index], player)
+				for j := 0; j < 4; j++ {
+					if weight[j] > *bestWeight {
+						*bestWeight = weight[j]
+						*bestPosition = pos[index]
+					}
+				}
+				WeightGameBoard[tab][pos[index].X][pos[index].Y] = weight[0] + weight[1] + weight[2] + weight[3]
+			}
+		}(i)
 	}
-
-	for i := range weight {
-		if weight[i][0] > (*bestWeight)[0] || weight[i][1] > (*bestWeight)[1] || weight[i][2] > (*bestWeight)[2] || weight[i][3] > (*bestWeight)[3] {
-			*bestWeight = weight[i]
-			*bestPosition = pos[i]
-		}
-		if posIsAvailable(pos[i]) {
-			WeightGameBoard[pos[i].X][pos[i].Y] = 1
-		}
-	}
+	wg.Wait()
 }
 
-func calcBestPositionAndWeight(bestPosition *Position, bestWeight *[4]int, player int) {
+func calcBestPositionAndWeight(bestPosition *Position, bestWeight *int, tab int, player int) {
 	for x := range GameBoard {
 		for y := range GameBoard[x] {
 			if GameBoard[x][y] == player {
-				calcAllWeightOfCase(bestPosition, bestWeight, Position{x, y}, player)
+				calcAllWeightOfCase(bestPosition, bestWeight, Position{x, y}, tab, player)
 			}
 		}
 	}
 }
 
-const weightAlarm = weightNotEmptyPower ^ 4 + 1
-const weightWarning = weightNotEmptyPower ^ 3 + 2
+func bestPositionInWeightBoard() Position {
+	var bestWeight = -1
+	var bestPosition Position
+
+	for a := 0; a < 2; a++ {
+		for x := range WeightGameBoard[a] {
+			for y := range WeightGameBoard[a][x] {
+				if WeightGameBoard[a][x][y] > bestWeight {
+					bestWeight = WeightGameBoard[a][x][y]
+					bestPosition = Position{x, y}
+				}
+			}
+		}
+	}
+	return bestPosition
+}
 
 func turn() Position {
 	if !hasPlayed(LastPlayerPosition) && !hasPlayed(LastEnemyPosition) { // If first turn
@@ -193,42 +199,41 @@ func turn() Position {
 	}
 
 	var bestPlayerPosition = Position{0, 0}
-	var bestPlayerWeight = [4]int{-1, -1, -1, -1}
+	var bestPlayerWeight = -1
 	var bestEnemyPosition = Position{0, 0}
-	var bestEnemyWeight = [4]int{-1, -1, -1, -1}
+	var bestEnemyWeight = -1
 
-	for x := range WeightGameBoard {
-		for y := range WeightGameBoard[x] {
-			WeightGameBoard[x][y] = 0
+	for a := 0; a < 2; a ++ {
+		for x := range WeightGameBoard[a] {
+			for y := range WeightGameBoard[a][x] {
+				WeightGameBoard[a][x][y] = 0
+			}
 		}
 	}
-	calcBestPositionAndWeight(&bestPlayerPosition, &bestPlayerWeight, 1)
+	calcBestPositionAndWeight(&bestPlayerPosition, &bestPlayerWeight, 0, 1)
 
-	if bestPlayerWeight[0] == weightAlarm || bestPlayerWeight[1] == weightAlarm || bestPlayerWeight[2] == weightAlarm || bestPlayerWeight[3] == weightAlarm {
+	if bestPlayerWeight == weightAlarm  {
 		return bestPlayerPosition
 	}
 
-	for x := range WeightGameBoard {
-		for y := range WeightGameBoard[x] {
-			WeightGameBoard[x][y] = 0
+	for a := 0; a < 2; a ++ {
+		for x := range WeightGameBoard[a] {
+			for y := range WeightGameBoard[a][x] {
+				WeightGameBoard[a][x][y] = 0
+			}
 		}
 	}
-	calcBestPositionAndWeight(&bestEnemyPosition, &bestEnemyWeight, 2)
+	calcBestPositionAndWeight(&bestEnemyPosition, &bestEnemyWeight,1, 2)
 
-	if bestEnemyWeight[0] == weightAlarm || bestEnemyWeight[1] == weightAlarm || bestEnemyWeight[2] == weightAlarm || bestEnemyWeight[3] == weightAlarm {
+	if bestEnemyWeight == weightAlarm {
 		return bestEnemyPosition
-	} else if bestPlayerWeight[0] == weightWarning || bestPlayerWeight[1] == weightWarning || bestPlayerWeight[2] == weightWarning || bestPlayerWeight[3] == weightWarning {
+	} else if bestPlayerWeight == weightWarning {
 		return bestPlayerPosition
-	} else if bestEnemyWeight[0] == weightWarning || bestEnemyWeight[1] == weightWarning || bestEnemyWeight[2] == weightWarning || bestEnemyWeight[3] == weightWarning {
+	} else if bestEnemyWeight == weightWarning {
 		return bestEnemyPosition
 	}
 
-	var bestSumPlayerWeight = bestPlayerWeight[0] + bestPlayerWeight[1] + bestPlayerWeight[2] + bestPlayerWeight[3]
-	var bestSumEnemyWeight = bestEnemyWeight[0] + bestEnemyWeight[1] + bestEnemyWeight[2] + bestEnemyWeight[3]
-	if bestSumEnemyWeight > bestSumPlayerWeight {
-		return bestEnemyPosition
-	}
-	return bestPlayerPosition
+	return bestPositionInWeightBoard()
 }
 
 func returnChan(comChan chan<- string, x int, y int) {
