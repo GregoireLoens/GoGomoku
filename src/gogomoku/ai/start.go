@@ -174,13 +174,11 @@ func bestPositionInWeightBoard() Position {
 	var bestWeight = -1
 	var bestPosition Position
 
-	for a := 0; a < 2; a++ {
-		for x := range WeightGameBoard[a] {
-			for y := range WeightGameBoard[a][x] {
-				if WeightGameBoard[a][x][y] > bestWeight {
-					bestWeight = WeightGameBoard[a][x][y]
-					bestPosition = Position{x, y}
-				}
+	for x := range WeightGameBoard[0] {
+		for y := range WeightGameBoard[0][x] {
+			if WeightGameBoard[0][x][y] + WeightGameBoard[1][x][y] > bestWeight {
+				bestWeight = WeightGameBoard[0][x][y] + WeightGameBoard[1][x][y]
+				bestPosition = Position{x, y}
 			}
 		}
 	}
