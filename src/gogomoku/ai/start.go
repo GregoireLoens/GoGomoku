@@ -24,14 +24,6 @@ func hasPlayed(pos Position) bool {
 	return pos.X != -1 && pos.Y != -1
 }
 
-func otherPlayer(player int) int {
-	if player == 1 {
-		return 2
-	} else {
-		return 1
-	}
-}
-
 func posIsValid(pos Position) bool {
 	if pos.X >= 0 && pos.X < len(GameBoard) && pos.Y >= 0 && pos.Y < len(GameBoard) {
 		return true
@@ -117,18 +109,18 @@ func calcWeightOfLine(player int, weightToSet *int, lineFunc calcWeightOfLineFun
 }
 
 func calcWeightOfCase(origin Position, player int) [4]int {
-	var weight = [4]int{-1, -1, -1, -1}
+	var weight = [4]int{0, 0, 0, 0}
 	calcWeightOfLine(player, &weight[0], func(a int, b int) Position {
 		return Position{origin.X - b + a, origin.Y}
 	})
-	calcWeightOfLine(player, &weight[0], func(a int, b int) Position {
+	calcWeightOfLine(player, &weight[1], func(a int, b int) Position {
 		return Position{origin.X - b + a, origin.Y + b - a}
 	})
-	calcWeightOfLine(player, &weight[0], func(a int, b int) Position {
+	calcWeightOfLine(player, &weight[2], func(a int, b int) Position {
 		return Position{origin.X, origin.Y + b - a}
 	})
-	calcWeightOfLine(player, &weight[0], func(a int, b int) Position {
-		return Position{origin.X + b + a, origin.Y + b - a}
+	calcWeightOfLine(player, &weight[3], func(a int, b int) Position {
+		return Position{origin.X + b - a, origin.Y + b - a}
 	})
 	return weight
 }
