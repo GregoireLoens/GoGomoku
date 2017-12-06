@@ -9,6 +9,7 @@ import (
 	"time"
 	"regexp"
 	"strconv"
+	"container/list"
 )
 
 type ComFunc func(string)
@@ -18,17 +19,27 @@ type ComFuncTab struct {
 	reg		string
 }
 
-var comFuncTab = [6]ComFuncTab{
+var comFuncTab = [7]ComFuncTab{
 	{ fun: restartGame, reg: "RESTART"},
 	{ fun: launchAI, reg: "BEGIN" },
 	{ fun: startGame, reg: "^START" },
 	{ fun: enemyTurn, reg: "TURN" },
 	{ fun: endGame, reg: "END" },
 	{ fun: aboutAI, reg: "ABOUT"},
+	{ fun: board, reg: "BOARD"},
 }
 
 var isActive bool = true
 
+func board(com string) {
+	var board = new(list.List)
+	reader :=  bufio.NewReader(os.Stdin)
+	tmp, _ := reader.ReadString('\n')
+	for tmp != "DONE" {
+		board.PushBack(tmp)
+	}
+	fmt.Println(board)
+}
 
 func aboutAI(com string) {
 	fmt.Println("name=GoGomoku, version=1.0, author=SaltTeam, country=France")
