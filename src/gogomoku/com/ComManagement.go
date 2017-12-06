@@ -9,8 +9,7 @@ import (
 	"time"
 	"regexp"
 	"strconv"
-	"container/list"
-)
+	)
 
 type ComFunc func(string)
 
@@ -32,13 +31,13 @@ var comFuncTab = [7]ComFuncTab{
 var isActive bool = true
 
 func board(com string) {
-	var board = new(list.List)
+	var board []string
 	reader :=  bufio.NewReader(os.Stdin)
 	tmp, _ := reader.ReadString('\n')
-	for tmp != "DONE" {
-		board.PushBack(tmp)
+	for tmp != "DONE\r\n" {
+		board = append(board, tmp)
+		tmp, _ = reader.ReadString('\n')
 	}
-	fmt.Println(board)
 }
 
 func aboutAI(com string) {
