@@ -201,7 +201,7 @@ func bestPositionInWarningStack() Position {
 	return bestPosition
 }
 
-func turn() Position {
+/*func turn() Position {
 	if !hasPlayed(LastPlayerPosition) && !hasPlayed(LastEnemyPosition) { // If first turn
 		return Position{len(GameBoard) / 2, len(GameBoard) / 2}
 	}
@@ -242,6 +242,45 @@ func turn() Position {
 	}
 
 	return bestPositionInWeightBoard()
+}*/
+
+type posWeightStruct struct {
+	weight int64
+	pos Position
+}
+
+func turn() Position {
+	var tab []posWeightStruct
+	var gameBoardLen = len(GameBoard)
+	for x := 0; x < gameBoardLen; x++ {
+		for y := 0; y < gameBoardLen; y++ {
+			if GameBoard[x][y] != 0 {
+				var pos = [8]Position{
+					{x - 1, y + 0},
+					{x - 1, y + 1},
+					{x + 0, y + 1},
+					{x + 1, y + 1},
+					{x + 1, y + 0},
+					{x + 1, y - 1},
+					{x + 0, y - 1},
+					{x - 1, y - 1},
+				}
+
+				for i := 0; i < 8; i ++ {
+					if posIsAvailable(pos[i]) {
+						tab = append(tab, posWeightStruct{computeBestPosition(pos[i], 3, true), pos[i]})
+					}
+				}
+			}
+		}
+	}
+	maxTab := tab[0]
+	for i := range tab {
+		if tab[i].weight > maxTab.weight {
+			maxTab = tab[i]
+		}
+	}
+	return maxTab.pos
 }
 
 func returnChan(comChan chan<- string, x int, y int) {
