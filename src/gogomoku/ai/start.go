@@ -109,7 +109,7 @@ func calcWeightOfLine(player int, weightToSet *int, lineFunc calcWeightOfLineFun
 	}
 }
 
-func calcWeightOfCase(origin Position, player int) [4]int {
+func calcWeightOfCase(origin Position, player int) int {
 	var weight = [4]int{0, 0, 0, 0}
 	calcWeightOfLine(player, &weight[0], func(a int, b int) Position {
 		return Position{origin.X - b + a, origin.Y}
@@ -123,7 +123,7 @@ func calcWeightOfCase(origin Position, player int) [4]int {
 	calcWeightOfLine(player, &weight[3], func(a int, b int) Position {
 		return Position{origin.X + b - a, origin.Y + b - a}
 	})
-	return weight
+	return weight[0] + weight[1] + weight[2] + weight[3]
 }
 
 func calcAllWeightOfCase(bestPosition *Position, bestWeight *int, origin Position, tab int, player int) {
