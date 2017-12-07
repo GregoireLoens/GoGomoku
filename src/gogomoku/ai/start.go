@@ -235,6 +235,9 @@ func turn() Position {
 	if bestEnemyWeight == weightAlarm {
 		return bestEnemyPosition
 	}
+	if bestEnemyWeight == weightWarning || bestPlayerWeight == weightWarning {
+		return bestPositionInWarningStack()
+	}
 
 	return bestPositionInWeightBoard()
 }
