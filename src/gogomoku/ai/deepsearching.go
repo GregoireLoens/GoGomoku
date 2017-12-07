@@ -1,7 +1,5 @@
 package ai
 
-import "go/token"
-
 func isWinningPoint(origin Position) {
 
 }
