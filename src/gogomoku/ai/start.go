@@ -2,7 +2,7 @@ package ai
 
 import (
 	"strconv"
-	"sync"
+	"fmt"
 )
 
 var GameBoard [][]int
@@ -17,9 +17,6 @@ var LastEnemyPosition = Position{-1, -1}
 var LastPlayerPosition = Position{-1, -1}
 
 const weightNotEmptyPower = 3
-const weightAlarm = 82
-const weightWarning = 29
-var warningStack[] Position
 
 func hasPlayed(pos Position) bool {
 	return pos.X != -1 && pos.Y != -1
@@ -82,8 +79,8 @@ func calcWeightOfLine(player int, weightToSet *int, lineFunc calcWeightOfLineFun
 		if continueA {
 			var newWeight int
 			var res = weightNotEmptyPower
-			if emptyCaseA + playerCaseA > 4 {
-				for i:= 1; i < playerCaseA; i++{
+			if emptyCaseA+playerCaseA > 4 {
+				for i := 1; i < playerCaseA; i++ {
 					res *= weightNotEmptyPower
 				}
 				newWeight = 5 - playerCaseA + res
@@ -95,8 +92,8 @@ func calcWeightOfLine(player int, weightToSet *int, lineFunc calcWeightOfLineFun
 		if continueB {
 			var newWeight int
 			var res = weightNotEmptyPower
-			if emptyCaseB + playerCaseB > 4 {
-				for i:= 1; i < playerCaseB; i++{
+			if emptyCaseB+playerCaseB > 4 {
+				for i := 1; i < playerCaseB; i++ {
 					res *= weightNotEmptyPower
 				}
 				newWeight = 5 - playerCaseB + res
@@ -128,7 +125,7 @@ func calcWeightOfCase(origin Position, player int) int {
 
 type posWeightStruct struct {
 	weight int64
-	pos Position
+	pos    Position
 }
 
 func turn() Position {
@@ -148,9 +145,11 @@ func turn() Position {
 					{x - 1, y - 1},
 				}
 
-				for i := 0; i < 8; i ++ {
+				for i := 0; i < 8; i++ {
 					if posIsAvailable(pos[i]) {
-						tab = append(tab, posWeightStruct{computeBestPosition(pos[i], 3, true), pos[i]})
+						weight := computeBestPosition(pos[i], 3, true)
+						fmt.Printf("X=%d;Y=%d = %d\n", pos[i].X, pos[i].Y, weight)
+						tab = append(tab, posWeightStruct{weight, pos[i]})
 					}
 				}
 			}
@@ -175,7 +174,12 @@ func returnChan(comChan chan<- string, x int, y int) {
 }
 
 func Start(comChan chan<- string) {
-	var pos = turn()
+	var pos Position
+	if !hasPlayed(LastEnemyPosition) && !hasPlayed(LastPlayerPosition) {
+		pos = Position{len(GameBoard) / 2, len(GameBoard) / 2}
+	} else {
+		pos = turn()
+	}
 	returnChan(comChan, pos.X, pos.Y)
 }
 

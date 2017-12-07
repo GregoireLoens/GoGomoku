@@ -1,70 +1,70 @@
 package ai
 
-import "math"
-
+import (
+	"math"
+	"fmt"
+)
 
 func isWinningPoint(origin Position, player int) bool {
 	var nbPoint = 0
 
-	for i := 4; i > -4; i++{
+	for i := 4; i > -4; i++ {
 		var tmpY = 0
 		tmpY = origin.Y + i
-		if posIsValid(origin) {
-			if (GameBoard[origin.X][tmpY] == player) {
+		if posIsValid(Position{origin.X, tmpY}) {
+			if GameBoard[origin.X][tmpY] == player {
 				nbPoint++
-			} else{
+			} else {
 				nbPoint = 0
 			}
-			if (nbPoint == 4) {
+			if nbPoint == 4 {
 				return true
 			}
 		}
 	}
-	for i := 4; i > -4; i++{
+	for i := 4; i > -4; i++ {
 		var tmpX = 0
 		tmpX = origin.X + i
-		if posIsValid(origin) {
-			if (GameBoard[tmpX][origin.Y] == player) {
+		if posIsValid(Position{tmpX, origin.Y}) {
+			if GameBoard[tmpX][origin.Y] == player {
 				nbPoint++
-			} else{
+			} else {
 				nbPoint = 0
 			}
-			if (nbPoint == 4) {
+			if nbPoint == 4 {
 				return true
 			}
 		}
 	}
-	for i := 4; i > -4; i++{
+	for i := 4; i > -4; i++ {
 		var tmpX = 0
 		var tmpY = 0
 		tmpX = origin.X + i
 		tmpY = origin.Y + i
-		if posIsValid(origin) {
-			if (GameBoard[tmpX][tmpY] == player) {
+		if posIsValid(Position{tmpX, tmpY}) {
+			if GameBoard[tmpX][tmpY] == player {
 				nbPoint++
-			} else{
+			} else {
 				nbPoint = 0
 			}
-			if (nbPoint == 4) {
+			if nbPoint == 4 {
 				return true
 			}
 		}
 	}
-	for i := 4; i > -4; i++{
+	for i := 4; i > -4; i++ {
 		var tmpX = 0
 		var tmpY = 0
 		tmpX = origin.X + i
 		tmpY = origin.Y - i
-		if posIsValid(origin) {
-			if (GameBoard[tmpX][tmpY] == player) {
+		if posIsValid(Position{tmpX, tmpY}) {
+			if GameBoard[tmpX][tmpY] == player {
 				nbPoint++
-			} else{
-				nbPoint = 0
-			}
-			if (nbPoint == 5) {
-				return true
 			} else {
 				nbPoint = 0
+			}
+			if nbPoint == 4 {
+				return true
 			}
 		}
 	}
@@ -76,7 +76,7 @@ func computeMapWeight() int64 {
 	var pos Position
 	for x := 0; x < len(GameBoard); x++ {
 		pos.X = x
-		for y:= 0; y < len(GameBoard); y++ {
+		for y := 0; y < len(GameBoard); y++ {
 			pos.Y = y
 			if (GameBoard[x][y] == 1) {
 				weightTotal += int64(calcWeightOfCase(pos, GameBoard[x][y]))
@@ -96,19 +96,20 @@ func boolToInt(b bool) int {
 	}
 }
 
-func computeBestPosition(pos Position, deep int, max bool) int64 {
+func computeBestPosition(origin Position, deep int, max bool) int64 {
 	if deep == 0 {
 		return computeMapWeight()
 	} else {
-		if isWinningPoint(pos, player) {
+		if isWinningPoint(origin, boolToInt(max)) {
 			if max {
 				return math.MaxInt64
 			} else {
-				return math.MaxUint64
+				return - math.MaxInt64
 			}
 		}
 
-		GameBoard[pos.X][pos.Y] = boolToInt(max)
+		fmt.Printf("%d\n", boolToInt(max))
+		GameBoard[origin.X][origin.Y] = boolToInt(max)
 		var weights []int64
 		var gameBoardLen = len(GameBoard)
 		for x := 0; x < gameBoardLen; x++ {
@@ -133,7 +134,7 @@ func computeBestPosition(pos Position, deep int, max bool) int64 {
 				}
 			}
 		}
-		GameBoard[pos.X][pos.Y] = 0
+		GameBoard[origin.X][origin.Y] = 0
 		var weight = weights[0]
 		if max { // MAXIMUM
 			for i := range weights {
