@@ -12,7 +12,7 @@ type Position struct {
 	Y int
 }
 
-const weightNotEmptyPower = 3
+const weightNotEmptyPower = 4
 
 func otherPlayer(player int) int {
 	if player == 1 {
@@ -120,6 +120,7 @@ func calcWeightOfCase(origin Position, player int) int {
 		return Position{origin.X + b - a, origin.Y + b - a}
 	})
 	return weight[0] + weight[1] + weight[2] + weight[3]
+	//return int(math.Max(float64(weight[0]), math.Max(float64(weight[1]), math.Max(float64(weight[2]), float64(weight[3])))))
 }
 
 type bestPair struct {
@@ -128,22 +129,14 @@ type bestPair struct {
 }
 
 func calcBestPositionAndWeight(player int, deep int) bestPair {
-	// WEIGHT BOARD CREATION
 	boardLen := len(GameBoard)
-	weightBoard := make([][]int, boardLen)
-	for x := 0; x < boardLen; x++ {
-		weightBoard[x] = make([]int, boardLen)
-		for y := 0; y < boardLen; y++ {
-			weightBoard[x][y] = 0
-		}
-	}
-	// LOOP OVER ALL
+	var weightTab []bestPair
+	// LOOP OVER MAP
 	for x := 0; x < boardLen; x++ {
 		for y := 0; y < boardLen; y++ {
 			if GameBoard[x][y] != 0 {
 
 				// CALC ALL AROUND CASES
-
 				var pos = [8]Position{
 					{x - 1, y + 0},
 					{x - 1, y + 1},
@@ -156,8 +149,9 @@ func calcBestPositionAndWeight(player int, deep int) bestPair {
 				}
 
 				for i := 0; i < 8; i ++ {
-					if posIsAvailable(pos[i]) && weightBoard[pos[i].X][pos[i].Y] == 0 {
-						weightBoard[pos[i].X][pos[i].Y] = calcWeightOfCase(pos[i], player) + calcWeightOfCase(pos[i], otherPlayer(player))
+					if posIsAvailable(pos[i]) {
+						val := calcWeightOfCase(pos[i], player) + calcWeightOfCase(pos[i], otherPlayer(player))
+						weightTab = append(weightTab, bestPair{val, pos[i]})
 					}
 				}
 			}
@@ -165,72 +159,55 @@ func calcBestPositionAndWeight(player int, deep int) bestPair {
 	}
 
 	if deep == 0 {
+		debugMessage(strconv.Itoa(deep) + " : MAX DEEP")
+		var best = weightTab[0]
 		if player == 1 { // MAXIMUM
-			var bestPosition = Position{0, 0}
-			var bestWeight = -1
-			for x := 0; x < boardLen; x++ {
-				for y := 0; y < boardLen; y++ {
-					if weightBoard[x][y] > bestWeight {
-						bestWeight = weightBoard[x][y]
-						bestPosition = Position{x, y}
-					}
+			for i := range weightTab {
+				if weightTab[i].weight > best.weight {
+					best = weightTab[i]
 				}
 			}
-			return bestPair{bestWeight, bestPosition}
+			debugMessage(strconv.Itoa(deep) + " : MAX DEEP RET (MAX) " + strconv.Itoa(best.weight))
 		} else { // MINIMUM
-			var bestPosition = Position{0, 0}
-			var bestWeight = 1000000
-			for x := 0; x < boardLen; x++ {
-				for y := 0; y < boardLen; y++ {
-					if weightBoard[x][y] < bestWeight && weightBoard[x][y] > 0 {
-						bestWeight = weightBoard[x][y]
-						bestPosition = Position{x, y}
-					}
+			for i := range weightTab {
+				if weightTab[i].weight < best.weight {
+					best = weightTab[i]
 				}
 			}
-			return bestPair{bestWeight, bestPosition}
+			debugMessage(strconv.Itoa(deep) + " : MAX DEEP RET (MIN) " + strconv.Itoa(best.weight))
 		}
+		return best
 	} else {
+		debugMessage(strconv.Itoa(deep) + " : DIVE")
 		var bestPairTab []bestPair
-		for x := 0; x < boardLen; x++ {
-			for y := 0; y < boardLen; y++ {
-				if weightBoard[x][y] > 0 {
-					GameBoard[x][y] = player
-					best := calcBestPositionAndWeight(otherPlayer(player), deep-1)
-					best.pos = Position{x, y}
-					bestPairTab = append(bestPairTab, best)
-					GameBoard[x][y] = 0
-				}
-			}
+		var best = weightTab[0]
+		for i := range weightTab {
+			GameBoard[weightTab[i].pos.X][weightTab[i].pos.X] = player
+			best := calcBestPositionAndWeight(otherPlayer(player), deep-1)
+			best.pos = weightTab[i].pos
+			bestPairTab = append(bestPairTab, best)
+			GameBoard[weightTab[i].pos.X][weightTab[i].pos.X] = 0
 		}
+		best = bestPairTab[0]
 		if player == 1 { // MINIMUM
-			var bestPair = bestPair{1000000, Position{0, 0}}
 			for i := range bestPairTab {
-				if bestPairTab[i].weight < bestPair.weight && bestPairTab[i].weight > 0 {
-					bestPair = bestPairTab[i]
+				if bestPairTab[i].weight < best.weight {
+					debugMessage(strconv.Itoa(deep) + " : DIVE GET " + strconv.Itoa(bestPairTab[i].weight))
+					best = bestPairTab[i]
 				}
 			}
-			return bestPair
+			debugMessage(strconv.Itoa(deep) + " : DIVE RET (MIN) " + strconv.Itoa(best.weight))
 		} else { // MAXIMUM
-			var bestPair = bestPair{-1, Position{0, 0}}
 			for i := range bestPairTab {
-				if bestPairTab[i].weight > bestPair.weight {
-					bestPair = bestPairTab[i]
+				debugMessage(strconv.Itoa(deep) + " : DIVE GET " + strconv.Itoa(bestPairTab[i].weight))
+				if bestPairTab[i].weight > best.weight {
+					best = bestPairTab[i]
 				}
 			}
-			return bestPair
+			debugMessage(strconv.Itoa(deep) + " : DIVE RET (MAX) " + strconv.Itoa(best.weight))
 		}
+		return best
 	}
-}
-
-const maxDeep = 2
-
-func turn() Position {
-	if !HasPlayed { // If first turn
-		return Position{len(GameBoard) / 2, len(GameBoard) / 2}
-	}
-
-	return calcBestPositionAndWeight(1, maxDeep).pos
 }
 
 func returnChan(comChan chan<- string, x int, y int) {
@@ -240,8 +217,15 @@ func returnChan(comChan chan<- string, x int, y int) {
 	GameBoard[x][y] = 1
 }
 
+const maxDeep = 0
+
 func Start(comChan chan<- string) {
-	var pos = turn()
+	var pos Position
+	if !HasPlayed { // If first turn
+		pos = Position{len(GameBoard) / 2, len(GameBoard) / 2}
+	} else {
+		pos = calcBestPositionAndWeight(1, maxDeep).pos
+	}
 	returnChan(comChan, pos.X, pos.Y)
 }
 
