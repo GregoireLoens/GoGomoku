@@ -1,11 +1,13 @@
 package ai
 
-func isWinningPoint(origin Position) {
+import "math"
 
+func isWinningPoint(origin Position) bool {
+	return false
 }
 
 func computeMapWeight() int {
-
+	return 0
 }
 
 func boolToInt(b bool) int {
@@ -20,6 +22,14 @@ func computeBestPosition(pos Position, deep int, max bool) int {
 	if deep == 0 {
 		return computeMapWeight()
 	} else {
+		if isWinningPoint(pos) {
+			if max {
+				return math.MaxInt64
+			} else {
+				return math.MaxUint64
+			}
+		}
+
 		GameBoard[pos.X][pos.Y] = boolToInt(max)
 		var weights []int
 		var gameBoardLen = len(GameBoard)
