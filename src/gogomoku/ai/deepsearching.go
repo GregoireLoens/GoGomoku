@@ -73,13 +73,11 @@ func isWinningPoint(origin Position, player int) bool {
 func computeMapWeight() int64 {
 	var weightTotal int64
 	var pos Position
-	for x := 0; x < len(GameBoard); x++ {
-		pos.X = x
-		for y := 0; y < len(GameBoard); y++ {
-			pos.Y = y
-			if GameBoard[x][y] == 1 {
+	for pos.X = 0; pos.X < len(GameBoard); pos.X++ {
+		for pos.Y = 0; pos.Y < len(GameBoard); pos.Y++ {
+			if GameBoard[pos.X][pos.Y] == 1 {
 				weightTotal += int64(calcWeightOfCase(pos, 1))
-			} else if GameBoard[x][y] == 2 {
+			} else if GameBoard[pos.X][pos.Y] == 2 {
 				weightTotal -= int64(calcWeightOfCase(pos, 2))
 			}
 		}
@@ -103,7 +101,7 @@ func computeBestPosition(origin Position, deep int, player int) int64 {
 			if player == 1 {
 				return math.MaxInt64
 			} else {
-				return - math.MaxInt64
+				return -math.MaxInt64
 			}
 		}
 
