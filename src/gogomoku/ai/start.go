@@ -150,6 +150,8 @@ func calcAllWeightOfCase(bestPosition *Position, bestWeight *int, origin Positio
 					if weight[j] > *bestWeight {
 						*bestWeight = weight[j]
 						*bestPosition = pos[index]
+					}
+					if weight[j] == weightWarning {
 						warningStack = append(warningStack, pos[index])
 					}
 				}
