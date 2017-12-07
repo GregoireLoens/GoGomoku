@@ -132,7 +132,7 @@ func launchAI(_ string) {
 		select {
 		case res := <- comChan:
 			fmt.Println(res)
-		case <- time.After(time.Second * 1):
+		case <- time.After(time.Second * 120):
 			ai.StartRandom(comChan)
 			fmt.Println(<- comChan)
 		}

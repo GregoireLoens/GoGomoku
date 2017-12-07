@@ -2,7 +2,6 @@ package ai
 
 import (
 	"strconv"
-	"fmt"
 )
 
 var GameBoard [][]int
@@ -147,8 +146,8 @@ func turn() Position {
 
 				for i := 0; i < 8; i++ {
 					if posIsAvailable(pos[i]) {
-						weight := computeBestPosition(pos[i], 3, true)
-						fmt.Printf("X=%d;Y=%d = %d\n", pos[i].X, pos[i].Y, weight)
+						weight := computeBestPosition(pos[i], 1, 1)
+						//fmt.Printf("X=%d;Y=%d = %d\n", pos[i].X, pos[i].Y, weight)
 						tab = append(tab, posWeightStruct{weight, pos[i]})
 					}
 				}
