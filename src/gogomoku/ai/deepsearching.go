@@ -2,7 +2,6 @@ package ai
 
 import (
 	"math"
-	"strconv"
 )
 
 func isWinningPoint(origin Position, player int) bool {
