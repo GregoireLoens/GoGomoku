@@ -2,6 +2,7 @@ package ai
 
 import (
 	"math"
+	"strconv"
 )
 
 func isWinningPoint(origin Position, player int) bool {
@@ -94,7 +95,6 @@ func otherPlayer(p int) int {
 }
 
 func computeBestPosition(origin Position, deep int, player int) int64 {
-	var tmpPlayer = player
 	if deep == 0 {
 		return computeMapWeight(player)
 	} else {
@@ -111,7 +111,6 @@ func computeBestPosition(origin Position, deep int, player int) int64 {
 		var gameBoardLen = len(GameBoard)
 		for x := 0; x < gameBoardLen; x++ {
 			for y := 0; y < gameBoardLen; y++ {
-				tmpPlayer = otherPlayer(tmpPlayer)
 				if GameBoard[x][y] != 0 {
 					var pos = [8]Position{
 						{x - 1, y + 0},
@@ -126,7 +125,7 @@ func computeBestPosition(origin Position, deep int, player int) int64 {
 
 					for i := 0; i < 8; i ++ {
 						if posIsAvailable(pos[i]) {
-							weights = append(weights, computeBestPosition(pos[i], deep-1, tmpPlayer))
+							weights = append(weights, computeBestPosition(pos[i], deep-1, otherPlayer(player)))
 						}
 					}
 				}
