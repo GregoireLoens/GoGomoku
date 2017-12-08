@@ -2,6 +2,7 @@ package ai
 
 import (
 	"math"
+	"container/list"
 )
 
 func isWinningPoint(origin Position, player int) bool {
@@ -105,6 +106,8 @@ func computeBestPosition(origin Position, deep int, player int) int64 {
 			}
 		}
 
+		var listPosition *list.List = list.New()
+
 		GameBoard[origin.X][origin.Y] = player
 		var weights []int64
 		var gameBoardLen = len(GameBoard)
@@ -124,11 +127,18 @@ func computeBestPosition(origin Position, deep int, player int) int64 {
 
 					for i := 0; i < 8; i ++ {
 						if posIsAvailable(pos[i]) {
-							weights = append(weights, computeBestPosition(pos[i], deep-1, otherPlayer(player)))
+							if !Any(listPosition, pos[i]) {
+								listPosition.PushBack(pos[i])
+							}
 						}
 					}
 				}
 			}
+		}
+		for e := listPosition.Front(); e != nil; e = e.Next() {
+			weight := computeBestPosition(e.Value.(Position), deep-1, otherPlayer(player))
+			weights = append(weights, weight)
+			//debugMessage("Pos (X=" + strconv.Itoa(e.Value.(Position).X) + ";Y=" + strconv.Itoa(e.Value.(Position).Y) + ") : " + strconv.Itoa(int(weight)))
 		}
 		GameBoard[origin.X][origin.Y] = 0
 		var weight = weights[0]

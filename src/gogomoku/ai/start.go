@@ -2,6 +2,7 @@ package ai
 
 import (
 	"strconv"
+	"container/list"
 )
 
 var GameBoard [][]int
@@ -128,6 +129,7 @@ type posWeightStruct struct {
 }
 
 func turn() Position {
+	var listPosition *list.List = list.New()
 	var tab []posWeightStruct
 	var gameBoardLen = len(GameBoard)
 	for x := 0; x < gameBoardLen; x++ {
@@ -146,13 +148,18 @@ func turn() Position {
 
 				for i := 0; i < 8; i++ {
 					if posIsAvailable(pos[i]) {
-						weight := computeBestPosition(pos[i], 2, 1)
-						debugMessage("Pos (X=" + strconv.Itoa(pos[i].X) + ";Y=" + strconv.Itoa(pos[i].Y) + ") : " + strconv.Itoa(int(weight)))
-						tab = append(tab, posWeightStruct{weight, pos[i]})
+						if !Any(listPosition, pos[i]) {
+							listPosition.PushBack(pos[i])
+						}
 					}
 				}
 			}
 		}
+	}
+	for e := listPosition.Front(); e != nil; e = e.Next() {
+		weight := computeBestPosition(e.Value.(Position), 2, 1)
+		//debugMessage("Pos (X=" + strconv.Itoa(e.Value.(Position).X) + ";Y=" + strconv.Itoa(e.Value.(Position).Y) + ") : " + strconv.Itoa(int(weight)))
+		tab = append(tab, posWeightStruct{weight, e.Value.(Position)})
 	}
 	maxTab := tab[0]
 	for i := range tab {
