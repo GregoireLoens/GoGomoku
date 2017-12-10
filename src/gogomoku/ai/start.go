@@ -146,7 +146,7 @@ func turn() Position {
 
 				for i := 0; i < 8; i++ {
 					if posIsAvailable(pos[i]) {
-						weight := computeBestPosition(pos[i], 1, 1)
+						weight := computeBestPosition(pos[i], 2, 1)
 						debugMessage("Pos X is " + strconv.Itoa(pos[i].X) + " pos y is " + strconv.Itoa(pos[i].Y) + " the weight is " + strconv.Itoa(int(weight)))
 						tab = append(tab, posWeightStruct{weight, pos[i]})
 					}

@@ -6,7 +6,6 @@ import (
 
 func isWinningPoint(origin Position, player int) bool {
 	var nbPoint = 0
-
 	for i := 4; i > -4; i-- {
 		var tmpY = 0
 		tmpY = origin.Y + i
@@ -16,7 +15,7 @@ func isWinningPoint(origin Position, player int) bool {
 			} else {
 				nbPoint = 0
 			}
-			if nbPoint == 4 {
+			if nbPoint == 5 {
 				return true
 			}
 		}
@@ -30,7 +29,7 @@ func isWinningPoint(origin Position, player int) bool {
 			} else {
 				nbPoint = 0
 			}
-			if nbPoint == 4 {
+			if nbPoint == 5 {
 				return true
 			}
 		}
@@ -46,7 +45,7 @@ func isWinningPoint(origin Position, player int) bool {
 			} else {
 				nbPoint = 0
 			}
-			if nbPoint == 4 {
+			if nbPoint == 5 {
 				return true
 			}
 		}
@@ -62,7 +61,7 @@ func isWinningPoint(origin Position, player int) bool {
 			} else {
 				nbPoint = 0
 			}
-			if nbPoint == 4 {
+			if nbPoint == 5 {
 				return true
 			}
 		}
