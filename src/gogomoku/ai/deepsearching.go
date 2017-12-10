@@ -2,6 +2,7 @@ package ai
 
 import (
 	"math"
+	"container/list"
 )
 
 func isWinningPoint(origin Position, player int) bool {
@@ -93,7 +94,6 @@ func otherPlayer(p int) int {
 }
 
 func computeBestPosition(origin Position, deep int, player int) int64 {
-	var tmpPlayer = player
 	if deep == 0 {
 		return computeMapWeight(player)
 	} else {
@@ -105,12 +105,13 @@ func computeBestPosition(origin Position, deep int, player int) int64 {
 			}
 		}
 
+		var listPosition *list.List = list.New()
+
 		GameBoard[origin.X][origin.Y] = player
 		var weights []int64
 		var gameBoardLen = len(GameBoard)
 		for x := 0; x < gameBoardLen; x++ {
 			for y := 0; y < gameBoardLen; y++ {
-				tmpPlayer = otherPlayer(tmpPlayer)
 				if GameBoard[x][y] != 0 {
 					var pos = [8]Position{
 						{x - 1, y + 0},
@@ -125,11 +126,18 @@ func computeBestPosition(origin Position, deep int, player int) int64 {
 
 					for i := 0; i < 8; i ++ {
 						if posIsAvailable(pos[i]) {
-							weights = append(weights, computeBestPosition(pos[i], deep-1, tmpPlayer))
+							if !Any(listPosition, pos[i]) {
+								listPosition.PushBack(pos[i])
+							}
 						}
 					}
 				}
 			}
+		}
+		for e := listPosition.Front(); e != nil; e = e.Next() {
+			weight := computeBestPosition(e.Value.(Position), deep-1, otherPlayer(player))
+			weights = append(weights, weight)
+			//debugMessage("Pos (X=" + strconv.Itoa(e.Value.(Position).X) + ";Y=" + strconv.Itoa(e.Value.(Position).Y) + ") : " + strconv.Itoa(int(weight)))
 		}
 		GameBoard[origin.X][origin.Y] = 0
 		var weight = weights[0]

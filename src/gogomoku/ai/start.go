@@ -2,6 +2,7 @@ package ai
 
 import (
 	"strconv"
+	"container/list"
 )
 
 var GameBoard [][]int
@@ -128,6 +129,7 @@ type posWeightStruct struct {
 }
 
 func turn() Position {
+	var listPosition *list.List = list.New()
 	var tab []posWeightStruct
 	var gameBoardLen = len(GameBoard)
 	for x := 0; x < gameBoardLen; x++ {
@@ -146,13 +148,24 @@ func turn() Position {
 
 				for i := 0; i < 8; i++ {
 					if posIsAvailable(pos[i]) {
+<<<<<<< HEAD
 						weight := computeBestPosition(pos[i], 2, 1)
 						debugMessage("Pos X is " + strconv.Itoa(pos[i].X) + " pos y is " + strconv.Itoa(pos[i].Y) + " the weight is " + strconv.Itoa(int(weight)))
 						tab = append(tab, posWeightStruct{weight, pos[i]})
+=======
+						if !Any(listPosition, pos[i]) {
+							listPosition.PushBack(pos[i])
+						}
+>>>>>>> 82fe7cea169d4929d646fc4a4d9ea46f966b5213
 					}
 				}
 			}
 		}
+	}
+	for e := listPosition.Front(); e != nil; e = e.Next() {
+		weight := computeBestPosition(e.Value.(Position), 2, 1)
+		//debugMessage("Pos (X=" + strconv.Itoa(e.Value.(Position).X) + ";Y=" + strconv.Itoa(e.Value.(Position).Y) + ") : " + strconv.Itoa(int(weight)))
+		tab = append(tab, posWeightStruct{weight, e.Value.(Position)})
 	}
 	maxTab := tab[0]
 	for i := range tab {
